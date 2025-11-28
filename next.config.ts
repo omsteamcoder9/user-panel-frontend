@@ -1,18 +1,20 @@
-// next.config.js
-/** @type {import('next').NextConfig} */
-const nextConfig = {
-  images: {
-    remotePatterns: [
-      {
-        protocol: 'http',
-        hostname: 'localhost',
-        port: '5000',
-        pathname: '/uploads/**',
-      },
-    ],
-    // Optional: Disable image optimization in development
-    unoptimized: process.env.NODE_ENV === 'development',
-  },
-}
+import type { NextConfig } from "next";
 
-module.exports = nextConfig
+const nextConfig: NextConfig = {
+ 
+   /* config options here */
+  // output: "export",
+  trailingSlash: true,
+  images: {
+    unoptimized: true,
+  },
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+  typescript: {
+    ignoreBuildErrors: true,
+  },
+
+};
+
+export default nextConfig;

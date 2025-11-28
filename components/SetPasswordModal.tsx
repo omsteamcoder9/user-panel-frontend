@@ -37,7 +37,7 @@ export default function SetPasswordModal({ email, orderId, onClose, onSuccess }:
     try {
       console.log('Sending request with:', { email, password, orderId });
 
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api'}/auth/set-guest-password`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/set-guest-password`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

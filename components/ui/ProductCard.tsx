@@ -136,13 +136,13 @@ export default function ProductCard({ product }: ProductCardProps) {
         return imagePath;
       }
       
-      const baseUrl = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:5000';
+      const baseUrl = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '');
       const imageUrl = `${baseUrl}${imagePath}`;
       return imageUrl;
     }
     
     if (product.ogImage) {
-      const baseUrl = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:5000';
+      const baseUrl = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') ;
       return `${baseUrl}${product.ogImage}`;
     }
     

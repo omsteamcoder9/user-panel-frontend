@@ -20,7 +20,7 @@ const cancelOrder = async (orderId: string, token: string, cancellationReason?: 
       cancellationReason
     });
 
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api'}/orders/${orderId}/cancel`, {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/orders/${orderId}/cancel`, {
       method: 'PUT',
       headers: {
         'Authorization': `Bearer ${token}`,

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { registerUser } from '@/lib/auth-api';
 
@@ -16,14 +16,16 @@ export default function SignupForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [isGuestUser, setIsGuestUser] = useState(false);
   const [showPasswordFields, setShowPasswordFields] = useState(false);
+  const [isClient, setIsClient] = useState(false);
 
   const router = useRouter();
-  const searchParams = useSearchParams();
 
   useEffect(() => {
-    // Pre-fill email from URL parameters for guest users
-    const emailParam = searchParams.get('email');
-    const guestParam = searchParams.get('guest');
+    setIsClient(true);
+    // Get URL parameters using URLSearchParams
+    const urlParams = new URLSearchParams(window.location.search);
+    const emailParam = urlParams.get('email');
+    const guestParam = urlParams.get('guest');
     
     if (emailParam) {
       setFormData(prev => ({
@@ -35,7 +37,7 @@ export default function SignupForm() {
       setIsGuestUser(true);
       setShowPasswordFields(true);
     }
-  }, [searchParams]);
+  }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
@@ -111,6 +113,22 @@ export default function SignupForm() {
     }
     setShowPasswordFields(true);
   };
+
+  // Show loading state during initial render
+  if (!isClient) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center py-4 px-4 sm:px-6 lg:px-8">
+        <div className="w-full max-w-md">
+          <div className="bg-white rounded-2xl shadow-xl border border-gray-200 p-6 sm:p-8 space-y-6 sm:space-y-8">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto"></div>
+              <p className="mt-2 text-gray-600">Loading...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-white flex items-center justify-center py-4 px-4 sm:px-6 lg:px-8">

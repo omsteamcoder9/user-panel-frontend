@@ -232,6 +232,6 @@ function getProductImageUrl(product: any): string {
     return imagePath;
   }
   
-  const baseUrl = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:5000';
+  const baseUrl = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '');
   return `${baseUrl}${imagePath}`;
 }

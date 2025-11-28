@@ -2,11 +2,10 @@
 
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
-import { useSearchParams, useRouter } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { setGuestPassword } from '@/lib/auth-api';
 
 export default function OrderSuccessPage() {
-  const searchParams = useSearchParams();
   const router = useRouter();
   const [orderId, setOrderId] = useState<string | null>(null);
   const [showPasswordPopup, setShowPasswordPopup] = useState(false);
@@ -16,8 +15,9 @@ export default function OrderSuccessPage() {
   const [message, setMessage] = useState('');
 
   useEffect(() => {
-    // Get orderId from URL parameters
-    const orderIdParam = searchParams.get('orderId');
+    // Get orderId from URL parameters using window.location
+    const urlParams = new URLSearchParams(window.location.search);
+    const orderIdParam = urlParams.get('orderId');
     
     if (orderIdParam) {
       setOrderId(orderIdParam);
@@ -25,42 +25,41 @@ export default function OrderSuccessPage() {
 
     // Clear cart data
     localStorage.removeItem('guestCart');
-  }, [searchParams]);
+  }, []);
 
+  const handlePasswordSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setMessage('');
 
-const handlePasswordSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
-  setIsLoading(true);
-  setMessage('');
+    try {
+      const data = await setGuestPassword({
+        email: email,
+        password: password,
+      });
 
-  try {
-    const data = await setGuestPassword({
-      email: email,
-      password: password,
-    });
-
-    if (data.success) {
-      setMessage('Password set successfully! Redirecting to login...');
-      
-      // Clear form
-      setPassword('');
-      setEmail('');
-      
-      // Redirect to login after a short delay
-      setTimeout(() => {
-        setShowPasswordPopup(false);
-        router.push('/login');
-      }, 2000);
-    } else {
-      setMessage(data.message || 'Failed to set password');
+      if (data.success) {
+        setMessage('Password set successfully! Redirecting to login...');
+        
+        // Clear form
+        setPassword('');
+        setEmail('');
+        
+        // Redirect to login after a short delay
+        setTimeout(() => {
+          setShowPasswordPopup(false);
+          router.push('/login');
+        }, 2000);
+      } else {
+        setMessage(data.message || 'Failed to set password');
+      }
+    } catch (error) {
+      console.error('Error setting password:', error);
+      setMessage(error instanceof Error ? error.message : 'An error occurred while setting password');
+    } finally {
+      setIsLoading(false);
     }
-  } catch (error) {
-    console.error('Error setting password:', error);
-    setMessage(error instanceof Error ? error.message : 'An error occurred while setting password');
-  } finally {
-    setIsLoading(false);
-  }
-};
+  };
 
   if (!orderId) {
     return (

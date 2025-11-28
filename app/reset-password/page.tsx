@@ -1,17 +1,21 @@
-'use client';
-import { useSearchParams } from 'next/navigation';
+// app/reset-password/page.tsx (Server Component)
 import { ResetPasswordForm } from '@/components/auth/ResetPasswordForm';
 
-export default function ResetPasswordPage() {
-  const searchParams = useSearchParams();
-  const token = searchParams.get('token');
+interface PageProps {
+  searchParams: {
+    token?: string;
+  }
+}
+
+export default function ResetPasswordPage({ searchParams }: PageProps) {
+  const { token } = searchParams;
 
   if (!token) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
           <h1 className="text-2xl font-bold text-red-600">Invalid Reset Link</h1>
-          <p className="mt-2">The reset link is missing or invalid.</p>
+          <p className="mt-2 text-gray-600">The reset link is missing or invalid.</p>
         </div>
       </div>
     );

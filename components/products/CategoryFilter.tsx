@@ -3,7 +3,6 @@
 
 import { Category } from '@/types/category';
 import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
 
 interface CategoryFilterProps {
   categories: Category[];
@@ -11,8 +10,6 @@ interface CategoryFilterProps {
 }
 
 export default function CategoryFilter({ categories, selectedCategory }: CategoryFilterProps) {
-  const searchParams = useSearchParams();
-
   return (
     <div className="mb-8">
       <h3 className="text-lg font-semibold text-gray-900 mb-4">Filter by Category:</h3>

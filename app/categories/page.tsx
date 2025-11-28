@@ -2,13 +2,13 @@
 import { fetchActiveCategories } from '@/lib/categoryService';
 import Link from 'next/link';
 
+export const dynamic = 'force-dynamic'; // Add this line
+
 export default async function CategoriesPage() {
   const categories = await fetchActiveCategories();
 
   return (
     <div className="min-h-screen bg-white">
-
-
       {/* Categories Grid Section */}
       <section className="py-12">
         <div className="container mx-auto px-4">

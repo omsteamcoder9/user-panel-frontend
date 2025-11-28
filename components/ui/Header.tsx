@@ -332,7 +332,7 @@ export default function Header() {
                                   <div className="w-10 h-10 bg-gray-100 rounded-lg flex-shrink-0 overflow-hidden border border-gray-200">
                                     {product.image ? (
                                       <img
-                                        src={product.image.startsWith('http') ? product.image : `${process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:5000'}${product.image}`}
+                                        src={product.image.startsWith('http') ? product.image : `${process.env.NEXT_PUBLIC_API_URL?.replace('/api', '')}${product.image}`}
                                         alt={product.name}
                                         className="w-full h-full object-cover"
                                       />
