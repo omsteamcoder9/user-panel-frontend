@@ -43,75 +43,89 @@ export default function Home() {
         <div className="absolute top-1/4 left-1/4 w-72 h-72 bg-blue-100 rounded-full blur-3xl opacity-20 animate-pulse-slow"></div>
         <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-100 rounded-full blur-3xl opacity-20 animate-pulse-slow delay-1000"></div>
       </div>
-      <br></br>
+      
 
       {/* Hero Section with Staggered Animations */}
-<section ref={heroRef} className="relative min-h-[80vh] flex items-center justify-center overflow-hidden bg-gradient-to-br from-blue-50 to-purple-50">
-  {/* Animated Bubble Background */}
+{/* Hero Section with Staggered Animations */}
+<section ref={heroRef} className="relative min-h-[80vh] flex items-center justify-center overflow-hidden">
+  {/* Background Image - Clear without blur overlay */}
+  <div className="absolute inset-0 z-0">
+    <div 
+      className="w-full h-full bg-cover bg-center bg-no-repeat"
+      style={{ 
+        backgroundImage: 'url(/images/a7.png)',
+        backgroundAttachment: 'fixed' // Optional: for parallax effect
+      }}
+    >
+      {/* Light overlay for better text readability - minimal effect */}
+      <div className="absolute inset-0 bg-black/10"></div>
+    </div>
+  </div>
+  
+  {/* Animated Bubble Background Overlay - Reduced opacity */}
   <div className="absolute inset-0 overflow-hidden">
-    <div className="absolute top-10 left-10 w-20 h-20 bg-blue-200 rounded-full opacity-40 animate-float"></div>
-    <div className="absolute top-20 right-20 w-16 h-16 bg-purple-200 rounded-full opacity-50 animate-float delay-1000"></div>
-    <div className="absolute bottom-20 left-20 w-24 h-24 bg-cyan-200 rounded-full opacity-30 animate-float delay-500"></div>
-    <div className="absolute bottom-10 right-10 w-12 h-12 bg-pink-200 rounded-full opacity-60 animate-float delay-1500"></div>
-    <div className="absolute top-1/2 left-1/4 w-18 h-18 bg-indigo-200 rounded-full opacity-40 animate-float delay-700"></div>
-    <div className="absolute top-1/3 right-1/3 w-14 h-14 bg-teal-200 rounded-full opacity-50 animate-float delay-1200"></div>
-    <div className="absolute bottom-1/4 left-1/3 w-22 h-22 bg-blue-300 rounded-full opacity-30 animate-float delay-900"></div>
-    <div className="absolute top-40 left-1/2 w-10 h-10 bg-purple-300 rounded-full opacity-60 animate-float delay-300"></div>
+    <div className="absolute top-10 left-10 w-20 h-20 bg-blue-300/10 rounded-full opacity-30 animate-float"></div>
+    <div className="absolute top-20 right-20 w-16 h-16 bg-purple-300/10 rounded-full opacity-40 animate-float delay-1000"></div>
+    <div className="absolute bottom-20 left-20 w-24 h-24 bg-cyan-300/10 rounded-full opacity-20 animate-float delay-500"></div>
+    <div className="absolute bottom-10 right-10 w-12 h-12 bg-pink-300/10 rounded-full opacity-50 animate-float delay-1500"></div>
+    <div className="absolute top-1/2 left-1/4 w-18 h-18 bg-indigo-300/10 rounded-full opacity-30 animate-float delay-700"></div>
+    <div className="absolute top-1/3 right-1/3 w-14 h-14 bg-teal-300/10 rounded-full opacity-40 animate-float delay-1200"></div>
+    <div className="absolute bottom-1/4 left-1/3 w-22 h-22 bg-blue-400/10 rounded-full opacity-20 animate-float delay-900"></div>
+    <div className="absolute top-40 left-1/2 w-10 h-10 bg-purple-400/10 rounded-full opacity-50 animate-float delay-300"></div>
   </div>
 
   {/* Content */}
   <div className="container mx-auto px-4 relative z-10">
     <div className="max-w-4xl mx-auto text-center">
       
-      {/* Animated Badge */}
-      <div className="inline-flex items-center gap-2 bg-white/80 backdrop-blur-sm text-gray-800 px-6 py-3 rounded-full mb-8 animate-fade-in-up border border-white">
-        <Sparkles size={18} className="text-yellow-500" />
-        <span className="text-sm font-medium">Trusted by 10,000+ customers</span>
-      </div>
+    
 
-      {/* Main Headings with Gradient Text */}
+      {/* Main Headings with Gradient Text - Enhanced for visibility */}
       <div className="space-y-6 mb-8">
-        <h1 className="text-5xl md:text-7xl font-bold leading-tight">
-          <span className="block animate-slide-in-left bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+        <h1 className="text-5xl md:text-7xl font-bold leading-tight drop-shadow-2xl">
+          <span className="block animate-slide-in-left bg-gradient-to-r from-blue-300 to-purple-300 bg-clip-text text-transparent">
             Premium
           </span>
-          <span className="block animate-slide-in-right delay-200 bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
+          <span className="block animate-slide-in-right delay-200 bg-gradient-to-r from-purple-300 to-blue-300 bg-clip-text text-transparent">
             Collection
           </span>
         </h1>
       </div>
 
       {/* Description Text */}
-      <p className="text-xl text-gray-700 mb-12 max-w-3xl mx-auto animate-fade-in-up delay-400">
+      <p className="text-xl text-white mb-12 max-w-3xl mx-auto animate-fade-in-up delay-400 drop-shadow-lg font-medium">
         Discover excellence in every detail
-        <span className="block text-gray-600 mt-2">
+        <span className="block text-white/90 mt-2">
           Elevate your experience with our curated selection
         </span>
       </p>
 
       {/* Animated CTA Buttons */}
       <div className="flex flex-col sm:flex-row gap-6 justify-center animate-fade-in-up delay-600">
-        <button className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-12 py-4 rounded-2xl font-semibold transform hover:scale-105 transition-all cursor-pointer border-2 border-transparent hover:shadow-lg">
+        <button 
+          onClick={navigateToProducts}
+          className="bg-gradient-to-r from-blue-600 to-purple-700 text-white px-12 py-4 rounded-2xl font-semibold transform hover:scale-105 transition-all cursor-pointer border-2 border-white/40 hover:border-white/80 hover:shadow-2xl shadow-lg"
+        >
           Explore Collection
         </button>
-        <button className="bg-transparent border-2 border-gray-700 text-gray-700 px-12 py-4 rounded-2xl font-semibold hover:bg-gray-700 hover:text-white transition-all">
+        <button className="bg-white/20 border-2 border-white/60 text-white px-12 py-4 rounded-2xl font-semibold hover:bg-white/30 hover:border-white/90 transition-all backdrop-blur-sm">
           Learn More
         </button>
       </div>
 
       {/* Stats Section */}
       <div className="grid grid-cols-3 gap-8 max-w-2xl mx-auto mt-16 animate-fade-in-up delay-800">
-        <div className="text-center bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-white shadow-sm">
-          <div className="text-2xl font-bold text-gray-800">10K+</div>
-          <div className="text-gray-600 text-sm">Happy Customers</div>
+        <div className="text-center bg-white/25 backdrop-blur-sm rounded-2xl p-6 border border-white/40 shadow-lg hover:bg-white/35 transition-colors">
+          <div className="text-2xl font-bold text-white">10K+</div>
+          <div className="text-white/90 text-sm">Happy Customers</div>
         </div>
-        <div className="text-center bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-white shadow-sm">
-          <div className="text-2xl font-bold text-gray-800">500+</div>
-          <div className="text-gray-600 text-sm">Premium Products</div>
+        <div className="text-center bg-white/25 backdrop-blur-sm rounded-2xl p-6 border border-white/40 shadow-lg hover:bg-white/35 transition-colors">
+          <div className="text-2xl font-bold text-white">500+</div>
+          <div className="text-white/90 text-sm">Premium Products</div>
         </div>
-        <div className="text-center bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-white shadow-sm">
-          <div className="text-2xl font-bold text-gray-800">24/7</div>
-          <div className="text-gray-600 text-sm">Expert Support</div>
+        <div className="text-center bg-white/25 backdrop-blur-sm rounded-2xl p-6 border border-white/40 shadow-lg hover:bg-white/35 transition-colors">
+          <div className="text-2xl font-bold text-white">24/7</div>
+          <div className="text-white/90 text-sm">Expert Support</div>
         </div>
       </div>
     </div>
@@ -119,7 +133,54 @@ export default function Home() {
 </section>
 
 
-{/* Features Section with Interactive Cards */}
+      {/* Category-based Products Section */}
+      <section className="py-20 bg-white">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-16">
+           <h2 className="text-4xl font-bold bg-gradient-to-r from-blue-500 to-purple-600 bg-clip-text text-transparent mb-4">Shop by Category</h2>
+            <p className="text-gray-600 max-w-2xl mx-auto text-lg">
+              Explore our carefully curated collections
+            </p>
+          </div>
+
+          {loading ? (
+            <div className="flex justify-center items-center py-12">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+            </div>
+          ) : (
+            <div className="space-y-16">
+              {featuredCategories.map((category, index) => (
+                <div key={category._id} className="animate-fade-in-up" style={{ animationDelay: `${index * 200}ms` }}>
+                  {/* Category Header */}
+                  <div className="text-center mb-8">
+                    
+<h3 className="text-3xl font-bold text-black mb-3">{category.name}</h3>
+                  </div>
+
+                  {/* Products Grid for this Category - FILTERS HIDDEN */}
+                  <ProductGrid 
+                    category={category._id} 
+                    limit={6} 
+                    hideFilters={true}  // This hides all filters on home page
+                  />
+                  
+                  {/* View More Button */}
+                  <div className="text-center mt-8">
+                 <button 
+  onClick={() => router.push(`/products?category=${category._id}`)}
+  className="inline-flex items-center gap-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 hover:from-blue-600 hover:to-purple-700 hover:shadow-xl shadow-lg mt-5 cursor-pointer"
+>
+                      View All {category.name}
+                      <ArrowRight className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </section>
+      {/* Features Section with Interactive Cards */}
 <section className="py-20 bg-gray-50">
   <div className="container mx-auto px-4">
     <div className="text-center mb-16">
@@ -206,53 +267,6 @@ export default function Home() {
     </div>
   </div>
 </section>
-      {/* Category-based Products Section */}
-      <section className="py-20 bg-white">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
-           <h2 className="text-4xl font-bold bg-gradient-to-r from-blue-500 to-purple-600 bg-clip-text text-transparent mb-4">Shop by Category</h2>
-            <p className="text-gray-600 max-w-2xl mx-auto text-lg">
-              Explore our carefully curated collections
-            </p>
-          </div>
-
-          {loading ? (
-            <div className="flex justify-center items-center py-12">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-            </div>
-          ) : (
-            <div className="space-y-16">
-              {featuredCategories.map((category, index) => (
-                <div key={category._id} className="animate-fade-in-up" style={{ animationDelay: `${index * 200}ms` }}>
-                  {/* Category Header */}
-                  <div className="text-center mb-8">
-                    
-<h3 className="text-3xl font-bold text-black mb-3">{category.name}</h3>
-                  </div>
-
-                  {/* Products Grid for this Category - FILTERS HIDDEN */}
-                  <ProductGrid 
-                    category={category._id} 
-                    limit={6} 
-                    hideFilters={true}  // This hides all filters on home page
-                  />
-                  
-                  {/* View More Button */}
-                  <div className="text-center mt-8">
-                 <button 
-  onClick={() => router.push(`/products?category=${category._id}`)}
-  className="inline-flex items-center gap-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 hover:from-blue-600 hover:to-purple-700 hover:shadow-xl shadow-lg mt-5 cursor-pointer"
->
-                      View All {category.name}
-                      <ArrowRight className="w-4 h-4" />
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      </section>
 
       {/* Custom Animations */}
       <style jsx global>{`
