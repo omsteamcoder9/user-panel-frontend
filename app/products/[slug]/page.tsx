@@ -13,12 +13,12 @@ interface ProductDetailPageProps {
   params: Promise<{ slug: string }>;
 }
 
-// Helper function to get image URL
-function getImageUrl(imagePath: string) {
-  if (imagePath.startsWith('http')) return imagePath;
-  const baseUrl = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '');
-  return `${baseUrl}${imagePath}`;
-}
+// // Helper function to get image URL
+// function getImageUrl(imagePath: string) {
+//   if (imagePath.startsWith('http')) return imagePath;
+//   const baseUrl = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '');
+//   return `${baseUrl}${imagePath}`;
+// }
 
 export default function ProductDetailPage(props: ProductDetailPageProps) {
   const [product, setProduct] = useState<Product | null>(null);
@@ -95,9 +95,9 @@ export default function ProductDetailPage(props: ProductDetailPageProps) {
   }
 
   // Get image URLs with fallbacks
-  const allImages = product.images?.map(img => getImageUrl(img.image)) || ['/placeholder-product.jpg'];
-  const mainImage = allImages[selectedImage];
-  const additionalImages = allImages;
+  // const allImages = product.images?.map(img => getImageUrl(img.image)) || ['/placeholder-product.jpg'];
+  // const mainImage = allImages[selectedImage];
+  // const additionalImages = allImages;
 
   return (
     <div className="min-h-screen bg-[white]">
@@ -119,7 +119,7 @@ export default function ProductDetailPage(props: ProductDetailPageProps) {
                     }}
                   >
                     <Image
-                      src={mainImage}
+                      src={`${process.env.NEXT_PUBLIC_BASE_URL}${product.images[0].image}`}
                       alt={product.name}
                       fill
                       className="object-cover rounded-b-[2rem] lg:rounded-3xl"
@@ -129,7 +129,7 @@ export default function ProductDetailPage(props: ProductDetailPageProps) {
                   </div>
                 </div>
 
-                {/* Additional Images - Curved thumbnails */}
+                {/* Additional Images - Curved thumbnails
                 {additionalImages.length > 1 && (
                   <div className="px-4 lg:px-0 py-4 lg:py-0">
                     <div className="flex lg:grid lg:grid-cols-4 gap-3 overflow-x-auto lg:overflow-visible pb-4 lg:pb-0">
@@ -154,7 +154,7 @@ export default function ProductDetailPage(props: ProductDetailPageProps) {
                       ))}
                     </div>
                   </div>
-                )}
+                )} */}
               </div>
             </div>
 

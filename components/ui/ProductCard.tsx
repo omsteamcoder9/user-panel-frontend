@@ -124,32 +124,31 @@ export default function ProductCard({ product }: ProductCardProps) {
     return true;
   }) || false;
 
-  const getImageUrl = () => {
-    if (imageError) {
-      return '/placeholder-product.jpg';
-    }
+  // const getImageUrl = () => {
+  //   if (imageError) {
+  //     return `${process.env.NEXT_PUBLIC_IMG_URL}/placeholder-product.jpg`;
+  //   }
 
-    if (product.images && product.images.length > 0 && product.images[0].image) {
-      const imagePath = product.images[0].image;
+  //   if (product.images && product.images.length > 0 && product.images[0].image) {
+  //     const imagePath = product.images[0].image;
       
-      if (imagePath.startsWith('http')) {
-        return imagePath;
-      }
+  //     if (imagePath.startsWith('http')) {
+  //       return imagePath;
+  //     }
       
-      const baseUrl = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '');
-      const imageUrl = `${baseUrl}${imagePath}`;
-      return imageUrl;
-    }
+  //     const baseUrl = process.env.NEXT_PUBLIC_IMG_URL;
+  //     return `${baseUrl}${imagePath}`;
+  //   }
     
-    if (product.ogImage) {
-      const baseUrl = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') ;
-      return `${baseUrl}${product.ogImage}`;
-    }
+  //   if (product.ogImage) {
+  //     const baseUrl = process.env.NEXT_PUBLIC_IMG_URL;
+  //     return `${baseUrl}${product.ogImage}`;
+  //   }
     
-    return '/placeholder-product.jpg';
-  };
+  //   return `${process.env.NEXT_PUBLIC_IMG_URL}/placeholder-product.jpg`;
+  // };
 
-  const imageUrl = getImageUrl();
+  // const imageUrl = getImageUrl();
   const maxQuantity = getMaxQuantity();
   const isOutOfStock = hasSizes ? availableSizes.length === 0 : product.stock <= 0;
 
@@ -182,13 +181,12 @@ export default function ProductCard({ product }: ProductCardProps) {
         <div className="relative p-3 sm:p-4 pb-0 overflow-hidden">
           <div className="relative h-32 xs:h-36 sm:h-40 md:h-48 bg-gray-100 flex items-center justify-center overflow-hidden rounded-lg">
             <img
-              src={imageUrl}
+              src={`${process.env.NEXT_PUBLIC_BASE_URL}${product.images[0].image}`}
               alt={product.name}
               className={`object-contain transition-all duration-300 ${
                 isHovered ? 'scale-110' : 'scale-100'
               } 
               max-h-28 xs:max-h-32 sm:max-h-32 md:max-h-40 cursor-pointer`}
-              onError={handleImageError}
             />
             
             {/* Quick View Overlay - Hidden on mobile, shown on tablet+ */}
@@ -290,7 +288,7 @@ export default function ProductCard({ product }: ProductCardProps) {
             <div className="p-6 border-b border-gray-200 cursor-pointer">
               <div className="flex gap-4">
                 <img 
-                  src={imageUrl} 
+                  src={`${process.env.NEXT_PUBLIC_BASE_URL}${product.images[0].image}`}
                   alt={product.name}
                   className="w-20 h-20 object-contain rounded-lg bg-gray-100 cursor-pointer transform transition-transform duration-300 hover:scale-105"
                 />

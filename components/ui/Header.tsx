@@ -190,6 +190,7 @@ export default function Header() {
   };
 
   const cartItemsCount = getCartItemCount();
+console.log(searchResults);
 
   return (
     <>
@@ -332,8 +333,7 @@ export default function Header() {
                                   <div className="w-10 h-10 bg-gray-100 rounded-lg flex-shrink-0 overflow-hidden border border-gray-200">
                                     {product.image ? (
                                       <img
-                                        src={product.image.startsWith('http') ? product.image : `${process.env.NEXT_PUBLIC_API_URL?.replace('/api', '')}${product.image}`}
-                                        alt={product.name}
+                                       src={`${process.env.NEXT_PUBLIC_BASE_URL}${product.image}`}
                                         className="w-full h-full object-cover"
                                       />
                                     ) : (

@@ -225,16 +225,14 @@ export function getProductImageUrl(product: Product): string {
       return imagePath;
     }
     
-    const baseUrl = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '');
+    const baseUrl = process.env.NEXT_PUBLIC_IMG_URL;
     return `${baseUrl}${imagePath}`;
   }
   
   if (product.ogImage) {
-    const baseUrl = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '');
+    const baseUrl = process.env.NEXT_PUBLIC_IMG_URL;
     return `${baseUrl}${product.ogImage}`;
   }
   
-  return '/placeholder-product.jpg';
+  return `${process.env.NEXT_PUBLIC_IMG_URL}/placeholder-product.jpg`;
 }
-
-

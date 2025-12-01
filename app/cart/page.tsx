@@ -79,7 +79,7 @@ export default function CartPage() {
                     {/* Product Image and Info - Mobile Layout */}
                     <div className="flex items-center gap-3 sm:gap-4">
                       <img 
-                        src={getProductImageUrl(item.product)}
+                      src={`${process.env.NEXT_PUBLIC_BASE_URL}${item.product.images[0].image}`}
                         alt={item.product.name}
                         className="w-16 h-16 sm:w-20 sm:h-20 object-cover rounded-lg flex-shrink-0"
                       />
@@ -221,17 +221,17 @@ export default function CartPage() {
 }
 
 // Helper function to get product image URL
-function getProductImageUrl(product: any): string {
-  if (!product.images || product.images.length === 0) {
-    return '/placeholder-product.jpg';
-  }
+// function getProductImageUrl(product: any): string {
+//   if (!product.images || product.images.length === 0) {
+//     return `${process.env.NEXT_PUBLIC_IMG_URL}`;
+//   }
 
-  const imagePath = product.images[0].image;
+//   const imagePath = product.images[0].image;
   
-  if (imagePath.startsWith('http')) {
-    return imagePath;
-  }
+//   if (imagePath.startsWith('http')) {
+//     return imagePath;
+//   }
   
-  const baseUrl = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '');
-  return `${baseUrl}${imagePath}`;
-}
+//   const baseUrl = process.env.NEXT_PUBLIC_IMG_URL;
+//   return `${baseUrl}${imagePath}`;
+// }
