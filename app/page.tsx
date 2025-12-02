@@ -53,7 +53,7 @@ export default function Home() {
     <div 
       className="w-full h-full bg-cover bg-center bg-no-repeat"
       style={{ 
-        backgroundImage: 'url(/images/a7.png)',
+        backgroundImage: 'url(/images/a8.jpg)',
         backgroundAttachment: 'fixed' // Optional: for parallax effect
       }}
     >
@@ -101,17 +101,18 @@ export default function Home() {
       </p>
 
       {/* Animated CTA Buttons */}
-      <div className="flex flex-col sm:flex-row gap-6 justify-center animate-fade-in-up delay-600">
-        <button 
-          onClick={navigateToProducts}
-          className="bg-gradient-to-r from-blue-600 to-purple-700 text-white px-12 py-4 rounded-2xl font-semibold transform hover:scale-105 transition-all cursor-pointer border-2 border-white/40 hover:border-white/80 hover:shadow-2xl shadow-lg"
-        >
-          Explore Collection
-        </button>
-        <button className="bg-white/20 border-2 border-white/60 text-white px-12 py-4 rounded-2xl font-semibold hover:bg-white/30 hover:border-white/90 transition-all backdrop-blur-sm">
-          Learn More
-        </button>
-      </div>
+      {/* Animated CTA Buttons - Single row on all devices */}
+<div className="flex flex-row flex-wrap gap-4 justify-center animate-fade-in-up delay-600">
+  <button 
+    onClick={navigateToProducts}
+    className="bg-gradient-to-r from-blue-600 to-purple-700 text-white px-6 sm:px-12 py-3 sm:py-4 rounded-2xl font-semibold transform hover:scale-105 transition-all cursor-pointer border-2 border-white/40 hover:border-white/80 hover:shadow-2xl shadow-lg text-sm sm:text-base flex-1 min-w-[140px] max-w-[280px]"
+  >
+    Explore Collection
+  </button>
+  <button className="bg-white/20 border-2 border-white/60 text-white px-6 sm:px-12 py-3 sm:py-4 rounded-2xl font-semibold hover:bg-white/30 hover:border-white/90 transition-all backdrop-blur-sm text-sm sm:text-base flex-1 min-w-[140px] max-w-[280px]">
+    Learn More
+  </button>
+</div>
 
       {/* Stats Section */}
       <div className="grid grid-cols-3 gap-8 max-w-2xl mx-auto mt-16 animate-fade-in-up delay-800">
@@ -134,7 +135,7 @@ export default function Home() {
 
 
       {/* Category-based Products Section */}
-      <section className="py-20 bg-white">
+      <section className="py-12 bg-white">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
            <h2 className="text-4xl font-bold bg-gradient-to-r from-blue-500 to-purple-600 bg-clip-text text-transparent mb-4">Shop by Category</h2>

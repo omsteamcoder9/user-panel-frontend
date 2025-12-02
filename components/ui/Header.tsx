@@ -217,7 +217,7 @@ console.log(searchResults);
                     alt="EcoStore Logo"
                     width={48}
                     height={48}
-                    className="w-full h-full object-contain p-1"
+                    
                     priority
                   />
                 </div>
