@@ -242,7 +242,7 @@ console.log(searchResults);
               {!loading && categories.map((category) => (
                 <Link 
                   key={category._id}
-                  href={`/products?category=${category._id}`}
+                  href={`/products?category=${category.slug}`}
                   className="text-white/90 hover:text-white transition-all duration-200 font-medium px-3 py-2 rounded-lg hover:bg-white/10 border-b-2 border-transparent hover:border-white/50 text-sm 2xl:text-base cursor-pointer"
                 >
                   {category.name}

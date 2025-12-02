@@ -20,7 +20,7 @@ export default function CartPage() {
 
   if (!cart.items || cart.items.length === 0) {
     return (
-      <div className="min-h-screen bg-white py-8 sm:py-12">
+      <div className="min-h-screen bg-white py-8 sm:py-12 cursor-pointer">
         <div className="container mx-auto px-4 sm:px-6">
           <div className="max-w-2xl mx-auto text-center bg-white rounded-lg shadow-sm border border-gray-200 p-6 sm:p-8">
             <svg className="w-12 h-12 sm:w-16 sm:h-16 text-gray-400 mx-auto mb-3 sm:mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -41,7 +41,7 @@ export default function CartPage() {
   }
 
   return (
-    <div className="min-h-screen bg-white py-8 sm:py-12">
+    <div className="min-h-screen bg-white py-8 sm:py-12 ">
       <div className="container mx-auto px-4 sm:px-6">
         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6 sm:mb-8">
           <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Shopping Cart</h1>
@@ -67,7 +67,7 @@ export default function CartPage() {
                 </h2>
                 <button 
                   onClick={clearCart}
-                  className="text-red-600 hover:text-red-800 text-xs sm:text-sm font-medium transition-colors duration-200"
+                  className="text-red-600 hover:text-red-800 text-xs sm:text-sm font-medium transition-colors duration-200 cursor-pointer"
                 >
                   Clear Cart
                 </button>
@@ -113,7 +113,7 @@ export default function CartPage() {
                         <button 
                           onClick={() => updateCartItem(item._id, item.quantity - 1)}
                           disabled={item.quantity <= 1}
-                          className="w-7 h-7 sm:w-8 sm:h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-blue-50 hover:border-blue-500 hover:text-blue-600 disabled:opacity-50 disabled:cursor-not-allowed text-sm transition-all duration-200"
+                          className="w-7 h-7 sm:w-8 sm:h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-blue-50 hover:border-blue-500 hover:text-blue-600 disabled:opacity-50 disabled:cursor-not-allowed text-sm transition-all duration-200 cursor-pointer"
                         >
                           -
                         </button>
@@ -121,7 +121,7 @@ export default function CartPage() {
                         <button 
                           onClick={() => updateCartItem(item._id, item.quantity + 1)}
                           disabled={item.quantity >= item.product.stock}
-                          className="w-7 h-7 sm:w-8 sm:h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-blue-50 hover:border-blue-500 hover:text-blue-600 disabled:opacity-50 disabled:cursor-not-allowed text-sm transition-all duration-200"
+                          className="w-7 h-7 sm:w-8 sm:h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-blue-50 hover:border-blue-500 hover:text-blue-600 disabled:opacity-50 disabled:cursor-not-allowed text-sm transition-all duration-200 cursor-pointer"
                         >
                           +
                         </button>
@@ -132,7 +132,7 @@ export default function CartPage() {
                         <p className="font-semibold text-gray-900 text-sm">₹{(item.product.price * item.quantity).toFixed(2)}</p>
                         <button 
                           onClick={() => removeFromCart(item._id)}
-                          className="text-red-600 hover:text-red-800 text-xs transition-colors duration-200"
+                          className="text-red-600 hover:text-red-800 text-xs transition-colors duration-200 cursor-pointer"
                         >
                           Remove
                         </button>
@@ -144,7 +144,7 @@ export default function CartPage() {
                       <p className="font-semibold text-gray-900">₹{(item.product.price * item.quantity).toFixed(2)}</p>
                       <button 
                         onClick={() => removeFromCart(item._id)}
-                        className="text-red-600 hover:text-red-800 text-sm transition-colors duration-200"
+                        className="text-red-600 hover:text-red-800 text-sm transition-colors duration-200 cursor-pointer"
                       >
                         Remove
                       </button>
@@ -181,7 +181,7 @@ export default function CartPage() {
 
               <button 
                 onClick={handleCheckout}
-                className="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white py-3 rounded-lg hover:from-blue-600 hover:to-purple-700 transition-all duration-200 font-medium mb-3 sm:mb-4 text-sm sm:text-base shadow-lg hover:shadow-blue-500/25"
+                className="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white py-3 rounded-lg hover:from-blue-600 hover:to-purple-700 transition-all duration-200 font-medium mb-3 sm:mb-4 text-sm sm:text-base shadow-lg hover:shadow-blue-500/25 cursor-pointer"
               >
                 Proceed to Checkout
               </button>

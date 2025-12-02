@@ -427,15 +427,16 @@ export default function CheckoutPage() {
   const total = (cart.totalPrice || 0) + tax + shippingFee;
 
   return (
-    <div className="min-h-screen bg-white py-12">
-      <div className="container mx-auto px-4">
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Checkout</h1>
+    <div className="min-h-screen bg-white py-8 sm:py-12">
+      <div className="container mx-auto px-4 sm:px-6">
+        {/* Header with responsive flex layout */}
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6 sm:mb-8">
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Checkout</h1>
           {!user && (
-            <div className="bg-blue-50 border border-blue-200 text-blue-700 px-4 py-2 rounded-lg">
-              <p className="text-sm">
+            <div className="bg-blue-50 border border-blue-200 text-blue-700 px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm">
+              <p>
                 🛒 Shopping as Guest •{' '}
-                <Link href="/signup" className="font-semibold underline hover:text-blue-600 transition-colors duration-200">
+                <Link href="/signup" className="font-semibold underline hover:text-blue-800 transition-colors duration-200">
                   Create account for faster checkout
                 </Link>
               </p>
@@ -443,34 +444,36 @@ export default function CheckoutPage() {
           )}
         </div>
 
-        {/* Authentication Error Display */}
+        {/* Authentication Error - responsive text */}
         {authError && (
-          <div className="mb-6 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg">
+          <div className="mb-4 sm:mb-6 bg-red-100 border border-red-400 text-red-700 px-3 sm:px-4 py-3 rounded-lg">
             <div className="flex items-center">
-              <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-4 h-4 sm:w-5 sm:h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
-              <span>{authError}</span>
+              <span className="text-sm sm:text-base">{authError}</span>
             </div>
             <div className="mt-2">
-              <Link href="/login" className="text-red-600 underline font-semibold hover:text-red-700 transition-colors duration-200">
+              <Link href="/login" className="text-red-600 underline font-semibold hover:text-red-700 transition-colors duration-200 text-sm sm:text-base">
                 Click here to log in again
               </Link>
             </div>
           </div>
         )}
         
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {/* Grid layout - stacked on mobile, side-by-side on large screens */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8">
           {/* Checkout Form */}
-          <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200">
-            <h2 className="text-xl font-semibold text-gray-900 mb-6">
+          <div className="bg-white rounded-lg shadow-sm sm:shadow-md p-4 sm:p-6 border border-gray-200">
+            <h2 className="text-lg sm:text-xl font-semibold text-gray-900 mb-4 sm:mb-6">
               {user ? 'Shipping Information' : 'Guest Checkout'}
             </h2>
             
-            <div className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-3 sm:space-y-4">
+              {/* Name fields - stacked on mobile, side-by-side on medium+ */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
                     First Name *
                   </label>
                   <input
@@ -479,12 +482,12 @@ export default function CheckoutPage() {
                     required
                     value={formData.firstName}
                     onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
-                    placeholder="Enter your first name"
+                    className="w-full px-3 py-2 text-sm sm:text-base border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                    placeholder="First name"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
                     Last Name *
                   </label>
                   <input
@@ -493,14 +496,15 @@ export default function CheckoutPage() {
                     required
                     value={formData.lastName}
                     onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
-                    placeholder="Enter your last name"
+                    className="w-full px-3 py-2 text-sm sm:text-base border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                    placeholder="Last name"
                   />
                 </div>
               </div>
 
+              {/* Email field */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
                   Email *
                 </label>
                 <input
@@ -509,13 +513,14 @@ export default function CheckoutPage() {
                   required
                   value={formData.email}
                   onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                  className="w-full px-3 py-2 text-sm sm:text-base border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
                   placeholder="Enter your email"
                 />
               </div>
 
+              {/* Phone field */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
                   Phone Number *
                 </label>
                 <input
@@ -524,13 +529,14 @@ export default function CheckoutPage() {
                   required
                   value={formData.phone}
                   onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                  className="w-full px-3 py-2 text-sm sm:text-base border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
                   placeholder="Enter your phone number"
                 />
               </div>
 
+              {/* Address field */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
                   Address *
                 </label>
                 <textarea
@@ -539,14 +545,15 @@ export default function CheckoutPage() {
                   value={formData.address}
                   onChange={handleInputChange}
                   rows={3}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                  className="w-full px-3 py-2 text-sm sm:text-base border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
                   placeholder="Enter your complete address"
                 />
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {/* City/State/PIN - stacked on mobile, 3-column on medium+ */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
                     City *
                   </label>
                   <input
@@ -555,12 +562,12 @@ export default function CheckoutPage() {
                     required
                     value={formData.city}
                     onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                    className="w-full px-3 py-2 text-sm sm:text-base border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
                     placeholder="City"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
                     State *
                   </label>
                   <input
@@ -569,12 +576,12 @@ export default function CheckoutPage() {
                     required
                     value={formData.state}
                     onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                    className="w-full px-3 py-2 text-sm sm:text-base border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
                     placeholder="State"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
                     PIN Code *
                   </label>
                   <input
@@ -583,14 +590,15 @@ export default function CheckoutPage() {
                     required
                     value={formData.pincode}
                     onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                    className="w-full px-3 py-2 text-sm sm:text-base border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
                     placeholder="PIN Code"
                   />
                 </div>
               </div>
 
+              {/* Country field */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
                   Country *
                 </label>
                 <select
@@ -598,7 +606,7 @@ export default function CheckoutPage() {
                   required
                   value={formData.country}
                   onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                  className="w-full px-3 py-2 text-sm sm:text-base border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
                 >
                   <option value="India">India</option>
                   <option value="United States">United States</option>
@@ -614,8 +622,8 @@ export default function CheckoutPage() {
           {/* Order Summary & Payment */}
           <div className="space-y-6">
             {/* Order Summary */}
-            <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200">
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">Order Summary</h2>
+            <div className="bg-white rounded-lg shadow-sm sm:shadow-md p-4 sm:p-6 border border-gray-200">
+              <h2 className="text-lg sm:text-xl font-semibold text-gray-900 mb-4">Order Summary</h2>
               
               <div className="space-y-3 mb-4">
                 {cart.items.map((item) => (
@@ -626,25 +634,25 @@ export default function CheckoutPage() {
                         <p className="text-xs text-gray-600">Qty: {item.quantity}</p>
                       </div>
                     </div>
-                    <p className="font-semibold">₹{((item.product.price || 0) * item.quantity).toFixed(2)}</p>
+                    <p className="font-semibold text-sm sm:text-base">₹{((item.product.price || 0) * item.quantity).toFixed(2)}</p>
                   </div>
                 ))}
               </div>
 
               <div className="border-t pt-3 space-y-2">
-                <div className="flex justify-between">
+                <div className="flex justify-between text-sm sm:text-base">
                   <span>Subtotal</span>
                   <span>₹{(cart.totalPrice || 0).toFixed(2)}</span>
                 </div>
-                <div className="flex justify-between">
+                <div className="flex justify-between text-sm sm:text-base">
                   <span>Shipping</span>
                   <span>{shippingFee === 0 ? 'FREE' : `₹${shippingFee}`}</span>
                 </div>
-                <div className="flex justify-between">
+                <div className="flex justify-between text-sm sm:text-base">
                   <span>Tax (18%)</span>
                   <span>₹{tax.toFixed(2)}</span>
                 </div>
-                <div className="flex justify-between text-lg font-semibold border-t pt-2">
+                <div className="flex justify-between text-base sm:text-lg font-semibold border-t pt-2">
                   <span>Total</span>
                   <span className="text-blue-600">₹{total.toFixed(2)}</span>
                 </div>
@@ -652,18 +660,18 @@ export default function CheckoutPage() {
             </div>
 
             {/* Payment Methods */}
-            <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200">
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">Payment Method</h2>
+            <div className="bg-white rounded-lg shadow-sm sm:shadow-md p-4 sm:p-6 border border-gray-200">
+              <h2 className="text-lg sm:text-xl font-semibold text-gray-900 mb-4">Payment Method</h2>
               
               <div className="space-y-4">
                 <button
                   onClick={handleRazorpayPayment}
                   disabled={paymentLoading || loading || !!authError}
-                  className="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white py-3 rounded-lg hover:from-blue-600 hover:to-purple-700 transition-all duration-200 font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center shadow-lg hover:shadow-blue-500/25"
+                  className="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white py-3 rounded-lg hover:from-blue-600 hover:to-purple-700 transition-all duration-200 font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center shadow-lg hover:shadow-blue-500/25 cursor-pointer text-sm sm:text-base"
                 >
                   {paymentLoading ? (
                     <div className="flex items-center">
-                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                      <div className="animate-spin rounded-full h-4 w-4 sm:h-5 sm:w-5 border-b-2 border-white mr-2"></div>
                       Processing...
                     </div>
                   ) : (
@@ -674,11 +682,11 @@ export default function CheckoutPage() {
                 <button
                   onClick={handleCashOnDelivery}
                   disabled={loading || paymentLoading || !!authError}
-                  className="w-full border border-blue-500 text-blue-500 py-3 rounded-lg hover:bg-gradient-to-r hover:from-blue-500 hover:to-purple-600 hover:text-white transition-all duration-200 font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center hover:shadow-lg"
+                  className="w-full border border-blue-500 text-blue-500 py-3 rounded-lg hover:bg-gradient-to-r hover:from-blue-500 hover:to-purple-600 hover:text-white transition-all duration-200 font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center hover:shadow-lg text-sm sm:text-base"
                 >
                   {loading ? (
                     <div className="flex items-center">
-                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-500 mr-2"></div>
+                      <div className="animate-spin rounded-full h-4 w-4 sm:h-5 sm:w-5 border-b-2 border-blue-500 mr-2"></div>
                       Processing...
                     </div>
                   ) : (
@@ -691,20 +699,20 @@ export default function CheckoutPage() {
               <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
                 {user ? (
                   <div className="flex items-center space-x-2 text-green-600">
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                     </svg>
-                    <span className="text-sm">Logged in as {user.name}</span>
+                    <span className="text-xs sm:text-sm">Logged in as {user.name}</span>
                     {!token && (
                       <span className="text-xs text-red-600">(Token missing!)</span>
                     )}
                   </div>
                 ) : (
                   <div className="flex items-center space-x-2 text-blue-600">
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                     </svg>
-                    <span className="text-sm">Checking out as guest</span>
+                    <span className="text-xs sm:text-sm">Checking out as guest</span>
                   </div>
                 )}
               </div>

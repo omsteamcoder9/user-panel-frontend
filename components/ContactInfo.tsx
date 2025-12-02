@@ -17,7 +17,7 @@ export default function ContactInfo() {
         </svg>
       ),
       title: 'Phone',
-      details: '+1 (555) 123-4567',
+      details: '+91 8765435656',
       description: 'Mon-Fri from 9am to 6pm'
     },
     {

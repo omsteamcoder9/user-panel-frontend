@@ -1,9 +1,11 @@
+
 import { Product, ProductSize } from '@/types/product';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useCart } from '@/context/CartContext';
 import { useRouter } from 'next/navigation';
 import { Star, ShoppingBag, Eye, Check, X } from 'lucide-react';
 import { getProductImageUrl } from '@/lib/productService'; 
+import { createPortal } from 'react-dom';
 
 interface ProductCardProps {
   product: Product;
@@ -35,6 +37,7 @@ export default function ProductCard({ product }: ProductCardProps) {
   const [showSizePopup, setShowSizePopup] = useState(false);
   const [selectedSize, setSelectedSize] = useState<string>('');
   const [popupQuantity, setPopupQuantity] = useState(1);
+  const [mounted, setMounted] = useState(false);
   
   const { addToCart, loading, addingProductId, cart } = useCart();
   const router = useRouter();
@@ -43,6 +46,10 @@ export default function ProductCard({ product }: ProductCardProps) {
   const availableSizes = hasSizes 
     ? product.sizes!.filter((size: ProductSize) => size.stock > 0)
     : [];
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const handleCardClick = () => {
     router.push(`/products/${product.slug}`);
@@ -124,33 +131,159 @@ export default function ProductCard({ product }: ProductCardProps) {
     return true;
   }) || false;
 
-  // const getImageUrl = () => {
-  //   if (imageError) {
-  //     return `${process.env.NEXT_PUBLIC_IMG_URL}/placeholder-product.jpg`;
-  //   }
-
-  //   if (product.images && product.images.length > 0 && product.images[0].image) {
-  //     const imagePath = product.images[0].image;
-      
-  //     if (imagePath.startsWith('http')) {
-  //       return imagePath;
-  //     }
-      
-  //     const baseUrl = process.env.NEXT_PUBLIC_IMG_URL;
-  //     return `${baseUrl}${imagePath}`;
-  //   }
-    
-  //   if (product.ogImage) {
-  //     const baseUrl = process.env.NEXT_PUBLIC_IMG_URL;
-  //     return `${baseUrl}${product.ogImage}`;
-  //   }
-    
-  //   return `${process.env.NEXT_PUBLIC_IMG_URL}/placeholder-product.jpg`;
-  // };
-
-  // const imageUrl = getImageUrl();
   const maxQuantity = getMaxQuantity();
   const isOutOfStock = hasSizes ? availableSizes.length === 0 : product.stock <= 0;
+
+  // Popup Component
+  const SizePopup = () => (
+    <div className="fixed inset-0 z-[9999]">
+      <div 
+        className="absolute inset-0 bg-black/50"
+        onClick={() => {
+          setShowSizePopup(false);
+          setSelectedSize('');
+          setPopupQuantity(1);
+        }}
+      ></div>
+      
+      <div className="absolute inset-0 flex items-center justify-center p-4">
+        <div 
+          className="bg-white rounded-xl max-w-md w-full max-h-[90vh] overflow-y-auto transform transition-transform duration-300 scale-100"
+          onClick={(e) => e.stopPropagation()}
+        >
+          {/* Header */}
+          <div className="flex items-center justify-between p-6 border-b border-gray-200">
+            <h3 className="text-lg font-semibold text-gray-900 cursor-pointer">Select Size</h3>
+            <button 
+              onClick={() => {
+                setShowSizePopup(false);
+                setSelectedSize('');
+                setPopupQuantity(1);
+              }}
+              className="text-gray-400 hover:text-gray-600 transition-colors cursor-pointer transform hover:scale-110"
+            >
+              <X size={24} />
+            </button>
+          </div>
+
+          {/* Product Info */}
+          <div className="p-6 border-b border-gray-200 cursor-pointer">
+            <div className="flex gap-4">
+              <img 
+                src={`${process.env.NEXT_PUBLIC_BASE_URL}${product.images[0].image}`}
+                alt={product.name}
+                className="w-20 h-20 object-contain rounded-lg bg-gray-100 cursor-pointer transform transition-transform duration-300 hover:scale-105"
+              />
+              <div>
+                <h4 className="font-semibold text-gray-900 mb-1 cursor-pointer">{product.name}</h4>
+                <p className="text-lg font-bold text-gray-900 cursor-pointer">₹{product.price}</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Size Selection */}
+          <div className="p-6 border-b border-gray-200">
+            <h4 className="font-semibold text-gray-900 mb-4 cursor-pointer">Select Size:</h4>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              {availableSizes.map((sizeItem: ProductSize, index: number) => {
+                const isAvailable = sizeItem.stock > 0;
+                const isSelected = selectedSize === sizeItem.size;
+
+                return (
+                  <button
+                    key={sizeItem.size || `size-${index}`}
+                    type="button"
+                    onClick={() => handleSizeSelect(sizeItem.size)}
+                    disabled={!isAvailable}
+                    className={`border-2 rounded-lg p-3 text-center transition-all cursor-pointer transform hover:scale-105 ${
+                      isSelected
+                        ? 'border-blue-500 bg-gradient-to-r from-blue-500 to-purple-600 text-white'
+                        : isAvailable
+                        ? 'border-gray-300 bg-white hover:border-blue-300 hover:bg-blue-50'
+                        : 'border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed'
+                    }`}
+                  >
+                    <div className="font-semibold cursor-pointer">{sizeItem.size}</div>
+                    <div className={`text-xs mt-1 cursor-pointer ${
+                      isAvailable 
+                        ? isSelected ? 'text-blue-100' : 'text-gray-500'
+                        : 'text-red-300'
+                    }`}>
+                      {isAvailable ? `${sizeItem.stock} available` : 'Out of stock'}
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Quantity Selection */}
+          {selectedSize && (
+            <div className="p-6 border-b border-gray-200">
+              <div className="flex items-center justify-between">
+                <span className="font-semibold cursor-pointer">Quantity:</span>
+                <div className="flex items-center border border-gray-300 rounded-lg">
+                  <button
+                    type="button"
+                    onClick={() => setPopupQuantity(Math.max(1, popupQuantity - 1))}
+                    className="px-4 py-2 hover:bg-gray-100 transition-colors disabled:opacity-50 cursor-pointer transform hover:scale-110"
+                    disabled={popupQuantity <= 1}
+                  >
+                    -
+                  </button>
+                  <span className="px-4 py-2 min-w-12 text-center cursor-pointer">{popupQuantity}</span>
+                  <button
+                    type="button"
+                    onClick={() => setPopupQuantity(Math.min(maxQuantity, popupQuantity + 1))}
+                    className="px-4 py-2 hover:bg-gray-100 transition-colors disabled:opacity-50 cursor-pointer transform hover:scale-110"
+                    disabled={popupQuantity >= maxQuantity}
+                  >
+                    +
+                  </button>
+                </div>
+                {maxQuantity > 0 && (
+                  <span className="text-sm text-gray-500 cursor-pointer">
+                    Max: {maxQuantity}
+                  </span>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Action Buttons */}
+          <div className="p-6 flex gap-3">
+            <button
+              onClick={() => {
+                setShowSizePopup(false);
+                setSelectedSize('');
+                setPopupQuantity(1);
+              }}
+              className="flex-1 py-3 px-4 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors cursor-pointer transform hover:scale-105"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handlePopupAddToCart}
+              disabled={!selectedSize || isAddingThisProduct}
+              className="flex-1 py-3 px-4 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg font-medium flex items-center justify-center gap-2 transition-all hover:from-blue-600 hover:to-purple-700 disabled:from-gray-400 disabled:to-gray-500 disabled:cursor-not-allowed cursor-pointer transform hover:scale-105"
+            >
+              {isAddingThisProduct ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                  Adding...
+                </>
+              ) : (
+                <>
+                  <ShoppingBag size={16} />
+                  Add to Cart
+                </>
+              )}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 
   return (
     <>
@@ -269,133 +402,10 @@ export default function ProductCard({ product }: ProductCardProps) {
         </div>
       </div>
 
-      {/* Size Selection Popup */}
-      {showSizePopup && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 cursor-pointer">
-          <div className="bg-white rounded-xl max-w-md w-full max-h-[90vh] overflow-y-auto transform transition-transform duration-300 scale-100">
-            {/* Header */}
-            <div className="flex items-center justify-between p-6 border-b border-gray-200">
-              <h3 className="text-lg font-semibold text-gray-900 cursor-pointer">Select Size</h3>
-              <button 
-                onClick={() => setShowSizePopup(false)}
-                className="text-gray-400 hover:text-gray-600 transition-colors cursor-pointer transform hover:scale-110"
-              >
-                <X size={24} />
-              </button>
-            </div>
-
-            {/* Product Info */}
-            <div className="p-6 border-b border-gray-200 cursor-pointer">
-              <div className="flex gap-4">
-                <img 
-                  src={`${process.env.NEXT_PUBLIC_BASE_URL}${product.images[0].image}`}
-                  alt={product.name}
-                  className="w-20 h-20 object-contain rounded-lg bg-gray-100 cursor-pointer transform transition-transform duration-300 hover:scale-105"
-                />
-                <div>
-                  <h4 className="font-semibold text-gray-900 mb-1 cursor-pointer">{product.name}</h4>
-                  <p className="text-lg font-bold text-gray-900 cursor-pointer">₹{product.price}</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Size Selection */}
-            <div className="p-6 border-b border-gray-200">
-              <h4 className="font-semibold text-gray-900 mb-4 cursor-pointer">Select Size:</h4>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                {availableSizes.map((sizeItem: ProductSize, index: number) => {
-                  const isAvailable = sizeItem.stock > 0;
-                  const isSelected = selectedSize === sizeItem.size;
-
-                  return (
-                    <button
-                      key={sizeItem.size || `size-${index}`}
-                      type="button"
-                      onClick={() => handleSizeSelect(sizeItem.size)}
-                      disabled={!isAvailable}
-                      className={`border-2 rounded-lg p-3 text-center transition-all cursor-pointer transform hover:scale-105 ${
-                        isSelected
-                          ? 'border-blue-500 bg-gradient-to-r from-blue-500 to-purple-600 text-white'
-                          : isAvailable
-                          ? 'border-gray-300 bg-white hover:border-blue-300 hover:bg-blue-50'
-                          : 'border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed'
-                      }`}
-                    >
-                      <div className="font-semibold cursor-pointer">{sizeItem.size}</div>
-                      <div className={`text-xs mt-1 cursor-pointer ${
-                        isAvailable 
-                          ? isSelected ? 'text-blue-100' : 'text-gray-500'
-                          : 'text-red-300'
-                      }`}>
-                        {isAvailable ? `${sizeItem.stock} available` : 'Out of stock'}
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* Quantity Selection */}
-            {selectedSize && (
-              <div className="p-6 border-b border-gray-200">
-                <div className="flex items-center justify-between">
-                  <span className="font-semibold cursor-pointer">Quantity:</span>
-                  <div className="flex items-center border border-gray-300 rounded-lg">
-                    <button
-                      type="button"
-                      onClick={() => setPopupQuantity(Math.max(1, popupQuantity - 1))}
-                      className="px-4 py-2 hover:bg-gray-100 transition-colors disabled:opacity-50 cursor-pointer transform hover:scale-110"
-                      disabled={popupQuantity <= 1}
-                    >
-                      -
-                    </button>
-                    <span className="px-4 py-2 min-w-12 text-center cursor-pointer">{popupQuantity}</span>
-                    <button
-                      type="button"
-                      onClick={() => setPopupQuantity(Math.min(maxQuantity, popupQuantity + 1))}
-                      className="px-4 py-2 hover:bg-gray-100 transition-colors disabled:opacity-50 cursor-pointer transform hover:scale-110"
-                      disabled={popupQuantity >= maxQuantity}
-                    >
-                      +
-                    </button>
-                  </div>
-                  {maxQuantity > 0 && (
-                    <span className="text-sm text-gray-500 cursor-pointer">
-                      Max: {maxQuantity}
-                    </span>
-                  )}
-                </div>
-              </div>
-            )}
-
-            {/* Action Buttons */}
-            <div className="p-6 flex gap-3">
-              <button
-                onClick={() => setShowSizePopup(false)}
-                className="flex-1 py-3 px-4 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors cursor-pointer transform hover:scale-105"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handlePopupAddToCart}
-                disabled={!selectedSize || isAddingThisProduct}
-                className="flex-1 py-3 px-4 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg font-medium flex items-center justify-center gap-2 transition-all hover:from-blue-600 hover:to-purple-700 disabled:from-gray-400 disabled:to-gray-500 disabled:cursor-not-allowed cursor-pointer transform hover:scale-105"
-              >
-                {isAddingThisProduct ? (
-                  <>
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                    Adding...
-                  </>
-                ) : (
-                  <>
-                    <ShoppingBag size={16} />
-                    Add to Cart
-                  </>
-                )}
-              </button>
-            </div>
-          </div>
-        </div>
+      {/* Render popup as portal */}
+      {mounted && showSizePopup && createPortal(
+        <SizePopup />,
+        document.body
       )}
     </>
   );

@@ -3,7 +3,7 @@ import ContactInfo from '@/components/ContactInfo';
 
 export default function ContactPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-white-50 to-indigo-100 py-12">
+    <div className="min-h-screen bg-gradient-to-br from-white-50 to-indigo-100 py-12 cursor-pointer">
       <div className="container mx-auto px-4">
         {/* Header */}
         <div className="text-center mb-12">
