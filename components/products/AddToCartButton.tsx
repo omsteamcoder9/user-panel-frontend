@@ -133,7 +133,7 @@ export default function AddToCartButton({ product }: AddToCartButtonProps) {
   const maxQuantity = getMaxQuantity();
   const isOutOfStock = hasSizes ? availableSizes.length === 0 : product.stock <= 0;
 
-  // ✅ UPDATED: Render sizes with proper handling for simple size values
+  // ✅ UPDATED: Render sizes with proper handling for simple size values - MADE SMALLER
   const renderSizeSelection = () => {
     if (!hasSizes) {
       console.log('🟡 Not rendering sizes: hasSizes = false');
@@ -143,14 +143,14 @@ export default function AddToCartButton({ product }: AddToCartButtonProps) {
     console.log('🟢 Rendering sizes, available:', availableSizes.length);
 
     return (
-      <div className="space-y-3">
-        <div className="flex items-center gap-2">
-          <span className="font-semibold">Size:</span>
+      <div className="space-y-2">
+        <div className="flex items-center gap-1">
+          <span className="font-semibold text-sm">Size:</span>
           {!selectedSize && availableSizes.length > 0 && (
-            <span className="text-red-500 text-sm">Please select a size</span>
+            <span className="text-red-500 text-xs">Please select a size</span>
           )}
         </div>
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
           {product.sizes?.map((sizeItem: ProductSize, index: number) => {
             // Additional safety check for each size item
             if (!isValidProductSize(sizeItem)) {
@@ -168,7 +168,7 @@ export default function AddToCartButton({ product }: AddToCartButtonProps) {
                 type="button"
                 onClick={() => handleSizeSelect(sizeItem.size)}
                 disabled={!isAvailable}
-                className={`border-2 rounded-lg p-3 text-center transition-all cursor-pointer ${
+                className={`border rounded-md p-1.5 text-center transition-all cursor-pointer text-xs ${ // Smaller: p-1.5, text-xs
                   isSelected
                     ? 'border-blue-500 bg-gradient-to-r from-blue-500 to-purple-600 text-white'
                     : isAvailable
@@ -176,13 +176,13 @@ export default function AddToCartButton({ product }: AddToCartButtonProps) {
                     : 'border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed'
                 }`}
               >
-                <div className="font-semibold">{displaySize}</div>
-                <div className={`text-xs mt-1 ${
+                <div className="font-medium">{displaySize}</div> {/* Changed to font-medium */}
+                <div className={`text-[10px] mt-0.5 ${ // Smaller: text-[10px], mt-0.5
                   isAvailable 
                     ? isSelected ? 'text-blue-100' : 'text-gray-500'
                     : 'text-red-300'
                 }`}>
-                  {isAvailable ? `${sizeItem.stock} available` : 'Out of stock'}
+                  {isAvailable ? `${sizeItem.stock} left` : 'Out'} {/* Shorter text */}
                 </div>
               </button>
             );
@@ -193,80 +193,80 @@ export default function AddToCartButton({ product }: AddToCartButtonProps) {
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3"> {/* Reduced from space-y-4 */}
       {/* Size Selection - Only show if product has valid sizes */}
       {renderSizeSelection()}
 
-      {/* Quantity Selector - Only show if product is in stock */}
+      {/* Quantity Selector - Only show if product is in stock - MADE SMALLER */}
       {!isOutOfStock && (
-        <div className="flex items-center gap-4">
-          <span className="font-semibold">Quantity:</span>
-          <div className="flex items-center border border-gray-300 rounded-lg">
+        <div className="flex items-center gap-2"> {/* Reduced gap */}
+          <span className="font-semibold text-sm">Qty:</span> {/* Smaller text */}
+          <div className="flex items-center border border-gray-300 rounded">
             <button
               type="button"
               onClick={() => setQuantity(Math.max(1, quantity - 1))}
-              className="px-4 py-2 hover:bg-gray-100 transition-colors disabled:opacity-50 cursor-pointer"
+              className="px-2 py-1 hover:bg-gray-100 transition-colors disabled:opacity-50 cursor-pointer text-sm" // Smaller: px-2 py-1
               disabled={quantity <= 1}
             >
               -
             </button>
-            <span className="px-4 py-2 min-w-12 text-center">{quantity}</span>
+            <span className="px-2 py-1 min-w-8 text-center text-sm">{quantity}</span> {/* Smaller */}
             <button
               type="button"
               onClick={() => setQuantity(Math.min(maxQuantity, quantity + 1))}
-              className="px-4 py-2 hover:bg-gray-100 transition-colors disabled:opacity-50 cursor-pointer"
+              className="px-2 py-1 hover:bg-gray-100 transition-colors disabled:opacity-50 cursor-pointer text-sm" // Smaller: px-2 py-1
               disabled={quantity >= maxQuantity}
             >
               +
             </button>
           </div>
           {maxQuantity > 0 && (
-            <span className="text-sm text-gray-500">
+            <span className="text-xs text-gray-500"> {/* Smaller text */}
               Max: {maxQuantity}
             </span>
           )}
         </div>
       )}
 
-      {/* Add to Cart Button */}
+      {/* Add to Cart Button - MADE MUCH SMALLER */}
       <button
         type="button"
         onClick={handleAddToCart}
         disabled={isOutOfStock || isAdding || (hasSizes && !selectedSize)}
-        className="w-full py-4 px-6 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-xl font-semibold flex items-center justify-center gap-3 transition-all duration-300 hover:from-blue-600 hover:to-purple-700 hover:shadow-xl disabled:bg-gray-400 disabled:cursor-not-allowed shadow-lg cursor-pointer"
+        className="w-full py-2 px-4 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg font-medium flex items-center justify-center gap-2 transition-all duration-300 hover:from-blue-600 hover:to-purple-700 hover:shadow-md disabled:bg-gray-400 disabled:cursor-not-allowed shadow cursor-pointer text-sm" // Smaller: py-2 px-4, rounded-lg, text-sm
       >
         {isAdding ? (
           <>
-            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-            Adding to Cart...
+            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div> {/* Smaller spinner */}
+            Adding...
           </>
         ) : isOutOfStock ? (
           'Out of Stock'
         ) : isInCart ? (
           <>
-            <Check size={20} />
-            Already in Cart
+            <Check size={16} /> {/* Smaller icon */}
+            In Cart
           </>
         ) : (
           <>
-            <ShoppingBag size={20} />
+            <ShoppingBag size={16} /> {/* Smaller icon */}
             Add to Cart
           </>
         )}
       </button>
 
-      {/* Success Message */}
+      {/* Success Message - MADE SMALLER */}
       {showSuccess && (
-        <div className="flex items-center gap-2 text-green-600 font-medium animate-pulse">
-          <Check size={20} />
-          Added to cart successfully!
+        <div className="flex items-center gap-1 text-green-600 font-medium animate-pulse text-sm"> {/* Smaller text */}
+          <Check size={16} /> {/* Smaller icon */}
+          Added to cart!
         </div>
       )}
 
-      {/* Size selection reminder */}
+      {/* Size selection reminder - MADE SMALLER */}
       {hasSizes && !selectedSize && !isOutOfStock && (
-        <div className="text-orange-600 text-sm font-medium">
-          ⚠️ Please select a size to add to cart
+        <div className="text-orange-600 text-xs font-medium"> {/* Smaller text */}
+          ⚠️ Select a size
         </div>
       )}
     </div>

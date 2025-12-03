@@ -1,4 +1,3 @@
-
 import { Product, ProductSize } from '@/types/product';
 import { useState, useEffect } from 'react';
 import { useCart } from '@/context/CartContext';
@@ -10,6 +9,11 @@ import { createPortal } from 'react-dom';
 interface ProductCardProps {
   product: Product;
 }
+
+// ✅ Format price with commas for thousands
+const formatPrice = (price: number): string => {
+  return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+};
 
 // ✅ Type guard for ProductSize
 const isValidProductSize = (item: any): item is ProductSize => {
@@ -176,7 +180,8 @@ export default function ProductCard({ product }: ProductCardProps) {
               />
               <div>
                 <h4 className="font-semibold text-gray-900 mb-1 cursor-pointer">{product.name}</h4>
-                <p className="text-lg font-bold text-gray-900 cursor-pointer">₹{product.price}</p>
+                {/* Updated price display */}
+                <p className="text-lg font-bold text-gray-900 cursor-pointer">₹{formatPrice(product.price)}</p>
               </div>
             </div>
           </div>
@@ -355,8 +360,9 @@ export default function ProductCard({ product }: ProductCardProps) {
           {/* Price and Stock Info - Reduced margin */}
           <div className="flex items-center justify-between mb-2 flex-col xs:flex-row gap-1 sm:gap-0 font-sans">
             <div className="flex items-center gap-2 w-full xs:w-auto justify-between xs:justify-start">
+              {/* Updated price display */}
               <span className="text-base xs:text-lg sm:text-lg font-bold text-gray-900 font-sans cursor-pointer">
-                ₹{product.price}
+                ₹{formatPrice(product.price)}
               </span>
               
               {/* Stock badge - moved here for mobile */}

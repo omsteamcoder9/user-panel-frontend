@@ -13,13 +13,6 @@ interface ProductDetailPageProps {
   params: Promise<{ slug: string }>;
 }
 
-// // Helper function to get image URL
-// function getImageUrl(imagePath: string) {
-//   if (imagePath.startsWith('http')) return imagePath;
-//   const baseUrl = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '');
-//   return `${baseUrl}${imagePath}`;
-// }
-
 export default function ProductDetailPage(props: ProductDetailPageProps) {
   const [product, setProduct] = useState<Product | null>(null);
   const [randomProducts, setRandomProducts] = useState<Product[]>([]);
@@ -94,21 +87,16 @@ export default function ProductDetailPage(props: ProductDetailPageProps) {
     notFound();
   }
 
-  // Get image URLs with fallbacks
-  // const allImages = product.images?.map(img => getImageUrl(img.image)) || ['/placeholder-product.jpg'];
-  // const mainImage = allImages[selectedImage];
-  // const additionalImages = allImages;
-
   return (
     <div className="min-h-screen bg-[white]">
       <div className="container mx-auto">
         {/* Product Section */}
         <div className="bg-white">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-0 lg:gap-8">
-            {/* Product Images - Full width on mobile, constrained on desktop */}
+            {/* Product Images */}
             <div className="w-full lg:sticky lg:top-0 lg:h-screen lg:overflow-auto">
               <div className="space-y-0 lg:space-y-4 lg:p-8">
-                {/* Main Image Container with Curved Edges */}
+                {/* Main Image Container */}
                   <div className="relative w-full bg-gray-50 overflow-hidden rounded-[2rem] lg:rounded-3xl mt-7">
                     <div 
                     className="relative w-full overflow-hidden rounded-b-[2rem] lg:rounded-3xl"
@@ -128,33 +116,6 @@ export default function ProductDetailPage(props: ProductDetailPageProps) {
                     />
                   </div>
                 </div>
-
-                {/* Additional Images - Curved thumbnails
-                {additionalImages.length > 1 && (
-                  <div className="px-4 lg:px-0 py-4 lg:py-0">
-                    <div className="flex lg:grid lg:grid-cols-4 gap-3 overflow-x-auto lg:overflow-visible pb-4 lg:pb-0">
-                      {additionalImages.map((image, index) => (
-                        <button
-                          key={index}
-                          onClick={() => setSelectedImage(index)}
-                          className={`flex-shrink-0 relative w-20 h-20 lg:w-full lg:h-20 bg-gray-50 rounded-2xl overflow-hidden cursor-pointer border-2 transition-all duration-200 ${
-                            selectedImage === index 
-                              ? 'border-[#556B2F] scale-105 shadow-md' 
-                              : 'border-transparent hover:border-gray-300'
-                          }`}
-                        >
-                          <Image
-                            src={image}
-                            alt={`${product.name} ${index + 1}`}
-                            fill
-                            className="object-cover rounded-xl"
-                            sizes="(max-width: 1024px) 80px, 25vw"
-                          />
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )} */}
               </div>
             </div>
 
@@ -172,19 +133,21 @@ export default function ProductDetailPage(props: ProductDetailPageProps) {
                   ₹{product.price || 0}
                 </span>
                 {product.stock > 0 ? (
-                  <span className="px-4 py-2 bg-green-100 text-green-800 rounded-full text-base font-medium self-start sm:self-auto">
+                  <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium self-start sm:self-auto">
                     In Stock ({product.stock} available)
                   </span>
                 ) : (
-                  <span className="px-4 py-2 bg-red-100 text-red-800 rounded-full text-base font-medium self-start sm:self-auto">
+                  <span className="px-3 py-1 bg-red-100 text-red-800 rounded-full text-sm font-medium self-start sm:self-auto">
                     Out of Stock
                   </span>
                 )}
               </div>
 
-              {/* Add to Cart Section */}
-              <div className="pt-4 lg:pt-6">
-                <AddToCartButton product={product} />
+              {/* Add to Cart Section - Made SMALLER */}
+              <div className="pt-2 lg:pt-4">
+                <div className="max-w-md">
+                  <AddToCartButton product={product} />
+                </div>
               </div>
 
               {/* Product Details after Add to Cart Button */}
@@ -195,15 +158,15 @@ export default function ProductDetailPage(props: ProductDetailPageProps) {
                   <p className="text-gray-700 text-base lg:text-lg leading-relaxed">{product.description}</p>
                 </div>
 
-                {/* Sizes - Smaller buttons */}
+                {/* Sizes - Made MUCH SMALLER */}
                 {product.sizes && product.sizes.length > 0 && (
                   <div>
-                    <h3 className="font-semibold text-gray-900 mb-3 text-xl lg:text-2xl">Available Sizes</h3>
-                    <div className="flex flex-wrap gap-2">
+                    <h3 className="font-semibold text-gray-900 mb-2 text-lg lg:text-xl">Available Sizes</h3>
+                    <div className="flex flex-wrap gap-1">
                       {product.sizes.map((sizeItem, index) => (
                         <span 
                           key={index} 
-                          className="px-3 py-1.5 bg-gray-100 text-gray-800 rounded-lg text-sm font-medium border border-gray-200 hover:bg-gray-200 transition-colors duration-200"
+                          className="px-2 py-0.5 bg-gray-100 text-gray-800 rounded text-xs font-medium border border-gray-200 hover:bg-gray-200 transition-colors duration-200"
                         >
                           {sizeItem.size}
                         </span>

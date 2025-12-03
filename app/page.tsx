@@ -122,7 +122,7 @@ export default function Home() {
             </div>
 
             {/* Stats Section */}
-            <div className="grid grid-cols-3 gap-8 max-w-2xl mx-auto mt-16 animate-fade-in-up delay-800">
+            {/* <div className="grid grid-cols-3 gap-8 max-w-2xl mx-auto mt-16 animate-fade-in-up delay-800">
               <div className="text-center bg-white/25 backdrop-blur-sm rounded-2xl p-6 border border-white/40 shadow-lg hover:bg-white/35 transition-colors">
                 <div className="text-2xl font-bold text-white">10K+</div>
                 <div className="text-white/90 text-sm">Happy Customers</div>
@@ -135,7 +135,7 @@ export default function Home() {
                 <div className="text-2xl font-bold text-white">24/7</div>
                 <div className="text-white/90 text-sm">Expert Support</div>
               </div>
-            </div>
+            </div> */}
           </div>
         </div>
       </section>

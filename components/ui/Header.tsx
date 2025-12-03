@@ -99,7 +99,7 @@ export default function Header() {
     };
   }, [lastScrollY]);
 
-  // Search functionality
+  // Search functionality - Show ALL products
   useEffect(() => {
     const performSearch = async () => {
       if (searchQuery.trim().length < 2) {
@@ -109,7 +109,8 @@ export default function Header() {
 
       setIsSearching(true);
       try {
-        const response = await quickSearchProducts(searchQuery, 5);
+        // Get ALL products (removed the limit of 5)
+        const response = await quickSearchProducts(searchQuery);
         if (response.success) {
           setSearchResults(response.data);
         }
@@ -170,6 +171,7 @@ export default function Header() {
     const handleClickOutside = (event: MouseEvent) => {
       if (searchContainerRef.current && !searchContainerRef.current.contains(event.target as Node)) {
         setShowSearch(false);
+        setSearchQuery('');
         setSearchResults([]);
       }
       if (mobileMenuRef.current && !mobileMenuRef.current.contains(event.target as Node) && isMobileMenuOpen) {
@@ -190,12 +192,11 @@ export default function Header() {
   };
 
   const cartItemsCount = getCartItemCount();
-console.log(searchResults);
 
   return (
     <>
       {/* Main Header */}
-      <header className="bg-gradient-to-r from-blue-500 to-purple-600 shadow-md border-b border-blue-400 font-sans">
+      <header className="bg-gradient-to-r from-blue-500 to-purple-600 shadow-md border-b border-blue-400 font-sans relative">
         <div className="container mx-auto px-3 sm:px-4 lg:px-6">
           <div className="flex items-center justify-between h-16 sm:h-20">
             {/* Logo and Mobile Menu Button */}
@@ -276,8 +277,8 @@ console.log(searchResults);
 
             {/* Actions */}
             <div className="flex items-center space-x-1 sm:space-x-2 md:space-x-3">
-              {/* Search Button and Input */}
-              <div ref={searchContainerRef} className="relative">
+              {/* Desktop Search - Hidden on Mobile */}
+              <div className="hidden md:block" ref={searchContainerRef}>
                 {showSearch ? (
                   <div className="relative">
                     <form onSubmit={handleSearchSubmit} className="flex items-center">
@@ -290,26 +291,29 @@ console.log(searchResults);
                         className="bg-white text-gray-900 px-3 py-2 rounded-lg border-2 border-white/30 focus:outline-none focus:border-white focus:ring-2 focus:ring-white/20 w-32 sm:w-40 md:w-44 lg:w-52 xl:w-56 2xl:w-64 transition-all duration-200 text-sm placeholder-gray-500"
                         autoFocus
                       />
+                      {/* Single button that shows search icon when there's text, otherwise close icon */}
                       <button
-                        type="submit"
-                        className="ml-1 p-1.5 bg-white text-blue-600 rounded-lg hover:bg-gray-100 transition-all duration-200 shadow hover:shadow-white/25 cursor-pointer"
-                      >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                        </svg>
-                      </button>
-                      <button
-                        type="button"
+                        type={searchQuery.trim() ? "submit" : "button"}
                         onClick={() => {
-                          setShowSearch(false);
-                          setSearchQuery('');
-                          setSearchResults([]);
+                          if (!searchQuery.trim()) {
+                            setShowSearch(false);
+                            setSearchQuery('');
+                            setSearchResults([]);
+                          }
                         }}
                         className="ml-1 p-1.5 text-white/80 hover:text-white transition-all duration-200 hover:bg-white/10 rounded-lg cursor-pointer"
                       >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                        </svg>
+                        {searchQuery.trim() ? (
+                          // Search icon when there's text
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                          </svg>
+                        ) : (
+                          // Close icon when no text
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                          </svg>
+                        )}
                       </button>
                     </form>
 
@@ -361,7 +365,7 @@ console.log(searchResults);
                               className="p-2 bg-gray-50 hover:bg-blue-500 hover:text-white cursor-pointer text-center transition-all duration-200 rounded-b-lg"
                               onClick={handleViewAllResults}
                             >
-                              <p className="font-medium text-sm">View all results for "{searchQuery}"</p>
+                              <p className="font-medium text-sm">View all {searchResults.length} results for "{searchQuery}"</p>
                             </div>
                           </>
                         )}
@@ -379,6 +383,16 @@ console.log(searchResults);
                   </button>
                 )}
               </div>
+              
+              {/* Mobile Search Button */}
+              <button 
+                onClick={handleSearchClick}
+                className="md:hidden p-1.5 text-white/90 hover:text-white hover:bg-white/10 transition-all duration-200 rounded-lg cursor-pointer"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+              </button>
               
               {/* Cart Button */}
               <Link 
@@ -467,123 +481,235 @@ console.log(searchResults);
               </div>
             </div>
           </div>
+        </div>
 
-          {/* Mobile Menu - EXACT SAME ORDER: Home → Categories (in added order) → All Products → About → Contact */}
-          {isMobileMenuOpen && (
-            <div ref={mobileMenuRef} className="xl:hidden fixed inset-0 z-50">
-              {/* Transparent overlay */}
-              <div 
-                className="absolute inset-0 bg-transparent"
-                onClick={() => setIsMobileMenuOpen(false)}
-              />
-              
-              {/* Smaller sidebar */}
-              <div className="absolute top-0 left-0 h-full w-64 bg-gradient-to-br from-blue-500 to-purple-600 border-r border-blue-400 shadow-2xl">
-                <div className="flex flex-col h-full">
-                  {/* Mobile Menu Header */}
-                  <div className="flex items-center justify-between p-4 border-b border-blue-400 bg-gradient-to-r from-blue-500 to-purple-600">
-                    <Link 
-                      href="/" 
-                      className="flex items-center space-x-2 group cursor-pointer"
-                      onClick={() => setIsMobileMenuOpen(false)}
-                    >
-                      {/* Mobile Logo */}
-                      <div className="w-8 h-8 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center shadow-lg border border-white/30 overflow-hidden">
-                        <Image
-                          src="/favicon.png"
-                          alt="EcoStore Logo"
-                          width={32}
-                          height={32}
-                          className="w-full h-full object-contain p-0.5"
-                        />
-                      </div>
-                      <div className="flex flex-col">
-                        <span className="text-lg font-bold text-white">EcoStore</span>
-                        <span className="text-[10px] text-white/80">SUSTAINABLE LIVING</span>
-                      </div>
-                    </Link>
-                    <button
-                      onClick={() => setIsMobileMenuOpen(false)}
-                      className="p-1.5 text-white/80 hover:text-white hover:bg-white/10 transition-all duration-200 rounded-lg cursor-pointer"
-                    >
+        {/* MOBILE SEARCH SECTION - SLIDES DOWN BELOW HEADER */}
+        <div className={`
+          md:hidden absolute left-0 right-0 top-full z-40 overflow-hidden
+          transition-all duration-300 ease-in-out
+          ${showSearch ? 'max-h-[500px] opacity-100 translate-y-0' : 'max-h-0 opacity-0 -translate-y-4'}
+        `}>
+          <div className="bg-gradient-to-r from-blue-500 to-purple-600 border-t border-blue-400 shadow-lg">
+            <div className="container mx-auto px-4 py-3">
+              <div className="relative" ref={searchContainerRef}>
+                <form onSubmit={handleSearchSubmit} className="flex items-center">
+                  <input
+                    ref={searchInputRef}
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Search products..."
+                    className="bg-white text-gray-900 px-4 py-3 rounded-lg border-2 border-white/30 focus:outline-none focus:border-white focus:ring-2 focus:ring-white/20 w-full transition-all duration-200 text-base placeholder-gray-500"
+                    autoFocus={showSearch}
+                  />
+                  <button
+                    type={searchQuery.trim() ? "submit" : "button"}
+                    onClick={() => {
+                      if (!searchQuery.trim()) {
+                        setShowSearch(false);
+                        setSearchQuery('');
+                        setSearchResults([]);
+                      }
+                    }}
+                    className="ml-2 p-2 text-white hover:bg-white/10 transition-all duration-200 rounded-lg cursor-pointer"
+                  >
+                    {searchQuery.trim() ? (
+                      // Search icon when there's text
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                      </svg>
+                    ) : (
+                      // Close icon when no text
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                       </svg>
-                    </button>
+                    )}
+                  </button>
+                </form>
+              </div>
+            </div>
+          </div>
+          
+          {/* SEARCH RESULTS - BELOW THE SEARCH BAR WITH SCROLL */}
+          {(searchResults.length > 0 || isSearching) && (
+            <div className="bg-white border-t border-gray-200 shadow-lg">
+              <div className="container mx-auto px-4">
+                {isSearching ? (
+                  <div className="py-4 text-center text-gray-500">
+                    <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500 mx-auto"></div>
+                    <p className="mt-2 text-sm">Searching for products...</p>
                   </div>
-
-                  {/* Mobile Navigation Links - EXACT SAME ORDER */}
-                  <nav className="flex-1 p-4">
-                    <div className="space-y-1">
-                      {/* 1. Home - Always First */}
-                      <Link 
-                        href="/" 
-                        className="flex items-center space-x-3 text-white/90 hover:text-white hover:bg-white/10 transition-all duration-200 font-medium p-3 rounded-lg border border-transparent hover:border-white/30 text-sm cursor-pointer"
-                        onClick={() => setIsMobileMenuOpen(false)}
-                      >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-                        </svg>
-                        <span>Home</span>
-                      </Link>
-                      
-                      {/* 2. Categories from Database - In exact order they were added */}
-                      {!loading && categories.map((category) => (
-                        <Link
-                          key={category._id}
-                          href={`/products?category=${category._id}`}
-                          className="flex items-center space-x-3 text-white/90 hover:text-white hover:bg-white/10 transition-all duration-200 font-medium p-3 rounded-lg border border-transparent hover:border-white/30 text-sm cursor-pointer ml-3"
-                          onClick={() => setIsMobileMenuOpen(false)}
+                ) : (
+                  <div className="max-h-64 overflow-y-auto py-2"> {/* Fixed height with scroll */}
+                    <div className="space-y-2">
+                      {searchResults.map((product) => (
+                        <div
+                          key={product._id}
+                          className="p-3 border border-gray-200 rounded-lg hover:bg-blue-50 cursor-pointer transition-all duration-200 hover:border-blue-300 hover:shadow-sm"
+                          onClick={() => handleProductClick(product)}
                         >
-                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-                          </svg>
-                          <span>{category.name}</span>
-                        </Link>
+                          <div className="flex items-center space-x-3">
+                            <div className="w-14 h-14 bg-gray-100 rounded-lg flex-shrink-0 overflow-hidden border border-gray-200">
+                              {product.image ? (
+                                <img
+                                  src={`${process.env.NEXT_PUBLIC_BASE_URL}${product.image}`}
+                                  className="w-full h-full object-cover"
+                                  alt={product.name}
+                                />
+                              ) : (
+                                <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+                                  <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                  </svg>
+                                </div>
+                              )}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-gray-900 font-medium truncate text-sm">{product.name}</p>
+                              <p className="text-gray-500 text-xs truncate">{product.category}</p>
+                              <div className="flex items-center justify-between mt-1">
+                                <p className="text-blue-600 font-medium text-sm">₹{product.price}</p>
+                                {product.featured && (
+                                  <span className="text-xs bg-yellow-500 text-white px-2 py-0.5 rounded">Featured</span>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
                       ))}
-                      
-                      {/* 3. All Products - After Categories */}
-                      <Link 
-                        href="/products" 
-                        className="flex items-center space-x-3 text-white/90 hover:text-white hover:bg-white/10 transition-all duration-200 font-medium p-3 rounded-lg border border-transparent hover:border-white/30 text-sm cursor-pointer"
+                    </div>
+                    
+                    {/* "View all results" button - Always visible at bottom */}
+                    <div
+                      className="p-3 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 cursor-pointer text-center transition-all duration-200 mt-2"
+                      onClick={handleViewAllResults}
+                    >
+                      <p className="text-blue-600 font-medium text-sm">
+                        View all {searchResults.length} results for "<span className="font-bold">{searchQuery}</span>"
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Mobile Menu - EXACT SAME ORDER: Home → Categories (in added order) → All Products → About → Contact */}
+        {isMobileMenuOpen && (
+          <div ref={mobileMenuRef} className="xl:hidden fixed inset-0 z-50">
+            {/* Transparent overlay */}
+            <div 
+              className="absolute inset-0 bg-transparent"
+              onClick={() => setIsMobileMenuOpen(false)}
+            />
+            
+            {/* Smaller sidebar */}
+            <div className="absolute top-0 left-0 h-full w-64 bg-gradient-to-br from-blue-500 to-purple-600 border-r border-blue-400 shadow-2xl">
+              <div className="flex flex-col h-full">
+                {/* Mobile Menu Header */}
+                <div className="flex items-center justify-between p-4 border-b border-blue-400 bg-gradient-to-r from-blue-500 to-purple-600">
+                  <Link 
+                    href="/" 
+                    className="flex items-center space-x-2 group cursor-pointer"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    {/* Mobile Logo */}
+                    <div className="w-8 h-8 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center shadow-lg border border-white/30 overflow-hidden">
+                      <Image
+                        src="/favicon.png"
+                        alt="EcoStore Logo"
+                        width={32}
+                        height={32}
+                        className="w-full h-full object-contain p-0.5"
+                      />
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="text-lg font-bold text-white">EcoStore</span>
+                      <span className="text-[10px] text-white/80">SUSTAINABLE LIVING</span>
+                    </div>
+                  </Link>
+                  <button
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="p-1.5 text-white/80 hover:text-white hover:bg-white/10 transition-all duration-200 rounded-lg cursor-pointer"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+
+                {/* Mobile Navigation Links - EXACT SAME ORDER */}
+                <nav className="flex-1 p-4">
+                  <div className="space-y-1">
+                    {/* 1. Home - Always First */}
+                    <Link 
+                      href="/" 
+                      className="flex items-center space-x-3 text-white/90 hover:text-white hover:bg-white/10 transition-all duration-200 font-medium p-3 rounded-lg border border-transparent hover:border-white/30 text-sm cursor-pointer"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                      </svg>
+                      <span>Home</span>
+                    </Link>
+                    
+                    {/* 2. Categories from Database - In exact order they were added */}
+                    {!loading && categories.map((category) => (
+                      <Link
+                        key={category._id}
+                        href={`/products?category=${category._id}`}
+                        className="flex items-center space-x-3 text-white/90 hover:text-white hover:bg-white/10 transition-all duration-200 font-medium p-3 rounded-lg border border-transparent hover:border-white/30 text-sm cursor-pointer ml-3"
                         onClick={() => setIsMobileMenuOpen(false)}
                       >
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
                         </svg>
-                        <span>All Products</span>
+                        <span>{category.name}</span>
                       </Link>
-                      
-                      {/* 4. About */}
-                      <Link 
-                        href="/about" 
-                        className="flex items-center space-x-3 text-white/90 hover:text-white hover:bg-white/10 transition-all duration-200 font-medium p-3 rounded-lg border border-transparent hover:border-white/30 text-sm cursor-pointer"
-                        onClick={() => setIsMobileMenuOpen(false)}
-                      >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        <span>About</span>
-                      </Link>
-                      
-                      {/* 5. Contact - Last */}
-                      <Link 
-                        href="/contact" 
-                        className="flex items-center space-x-3 text-white/90 hover:text-white hover:bg-white/10 transition-all duration-200 font-medium p-3 rounded-lg border border-transparent hover:border-white/30 text-sm cursor-pointer"
-                        onClick={() => setIsMobileMenuOpen(false)}
-                      >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                        </svg>
-                        <span>Contact</span>
-                      </Link>
-                    </div>
-                  </nav>
-                </div>
+                    ))}
+                    
+                    {/* 3. All Products - After Categories */}
+                    <Link 
+                      href="/products" 
+                      className="flex items-center space-x-3 text-white/90 hover:text-white hover:bg-white/10 transition-all duration-200 font-medium p-3 rounded-lg border border-transparent hover:border-white/30 text-sm cursor-pointer"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                      </svg>
+                      <span>All Products</span>
+                    </Link>
+                    
+                    {/* 4. About */}
+                    <Link 
+                      href="/about" 
+                      className="flex items-center space-x-3 text-white/90 hover:text-white hover:bg-white/10 transition-all duration-200 font-medium p-3 rounded-lg border border-transparent hover:border-white/30 text-sm cursor-pointer"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      <span>About</span>
+                    </Link>
+                    
+                    {/* 5. Contact - Last */}
+                    <Link 
+                      href="/contact" 
+                      className="flex items-center space-x-3 text-white/90 hover:text-white hover:bg-white/10 transition-all duration-200 font-medium p-3 rounded-lg border border-transparent hover:border-white/30 text-sm cursor-pointer"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                      </svg>
+                      <span>Contact</span>
+                    </Link>
+                  </div>
+                </nav>
               </div>
             </div>
-          )}
-        </div>
+          </div>
+        )}
       </header>
 
       {/* Bottom Navigation Footer */}

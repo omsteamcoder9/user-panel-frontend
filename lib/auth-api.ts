@@ -1,4 +1,4 @@
-import { LoginData, RegisterData, AuthResponse, SetGuestPasswordData, ResetPasswordData, ForgotPasswordData } from '@/types/auth';
+import { LoginData, RegisterData, AuthResponse, ResetPasswordData, ForgotPasswordData } from '@/types/auth';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -52,22 +52,22 @@ export async function getProfile(token: string): Promise<AuthResponse> {
   return response.json();
 }
 
-export async function setGuestPassword(passwordData: SetGuestPasswordData): Promise<AuthResponse> {
-  const response = await fetch(`${API_BASE_URL}/auth/set-guest-password`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(passwordData),
-  });
+// export async function setGuestPassword(passwordData: SetGuestPasswordData): Promise<AuthResponse> {
+//   const response = await fetch(`${API_BASE_URL}/auth/set-guest-password`, {
+//     method: 'POST',
+//     headers: {
+//       'Content-Type': 'application/json',
+//     },
+//     body: JSON.stringify(passwordData),
+//   });
 
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.message || 'Failed to set password');
-  }
+//   if (!response.ok) {
+//     const error = await response.json();
+//     throw new Error(error.message || 'Failed to set password');
+//   }
 
-  return response.json();
-}
+//   return response.json();
+// }
 
 // ADD: Forgot Password function
 export async function forgotPassword(emailData: ForgotPasswordData): Promise<AuthResponse> {

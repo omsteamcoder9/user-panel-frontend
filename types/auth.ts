@@ -1,8 +1,3 @@
-// auth.ts - Corrected types
-export interface SetGuestPasswordData {
-  email: string;
-  password: string;
-}
 
 export interface LoginData {
   email: string;
