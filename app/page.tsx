@@ -32,7 +32,7 @@ export default function Home() {
   }, []);
 
   // You can customize which categories to show and in what order
-  const featuredCategories = categories.slice(0, 3); // Show first 3 categories
+  const featuredCategories = categories.slice(0, 1000); // Show first 3 categories
 
   return (
     <div className="min-h-screen bg-white overflow-hidden">
@@ -114,7 +114,7 @@ export default function Home() {
                 onClick={navigateToProducts}
                 className="bg-gradient-to-r from-blue-600 to-purple-700 text-white px-6 sm:px-12 py-3 sm:py-4 rounded-2xl font-semibold transform hover:scale-105 transition-all cursor-pointer border-2 border-white/40 hover:border-white/80 hover:shadow-2xl shadow-lg text-sm sm:text-base flex-1 min-w-[140px] max-w-[280px]"
               >
-                Explore Collection
+                Explore
               </button>
               <button className="bg-white/20 border-2 border-white/60 text-white px-6 sm:px-12 py-3 sm:py-4 rounded-2xl font-semibold hover:bg-white/30 hover:border-white/90 transition-all backdrop-blur-sm text-sm sm:text-base flex-1 min-w-[140px] max-w-[280px]">
                 Learn More

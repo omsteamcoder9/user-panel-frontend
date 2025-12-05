@@ -33,6 +33,7 @@ export default function Header() {
   const router = useRouter();
   const [showDropdown, setShowDropdown] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
+  const [showShopDropdown, setShowShopDropdown] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<SearchProduct[]>([]);
   const [isSearching, setIsSearching] = useState(false);
@@ -47,12 +48,27 @@ export default function Header() {
   const searchContainerRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const mobileMenuRef = useRef<HTMLDivElement>(null);
+  const shopDropdownRef = useRef<HTMLDivElement>(null);
+
+  // Check if mobile
+  const [isMobile, setIsMobile] = useState(false);
+  const [isDesktop, setIsDesktop] = useState(false);
+
+  useEffect(() => {
+    const checkScreenSize = () => {
+      setIsMobile(window.innerWidth < 1280);
+      setIsDesktop(window.innerWidth >= 1280);
+    };
+
+    checkScreenSize();
+    window.addEventListener('resize', checkScreenSize);
+    return () => window.removeEventListener('resize', checkScreenSize);
+  }, []);
 
   useEffect(() => {
     const loadCategories = async () => {
       try {
         const categoriesData = await fetchActiveCategories();
-        // Categories will be in the exact order they were added (sorted by createdAt)
         setCategories(categoriesData);
       } catch (error) {
         console.error('Error loading categories:', error);
@@ -69,12 +85,9 @@ export default function Header() {
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
       
-      // Show footer when scrolling down, hide when scrolling up
       if (currentScrollY > lastScrollY && currentScrollY > 100) {
-        // Scrolling down & past 100px - show footer
         setIsFooterVisible(true);
       } else {
-        // Scrolling up - hide footer
         setIsFooterVisible(false);
       }
       
@@ -99,7 +112,7 @@ export default function Header() {
     };
   }, [lastScrollY]);
 
-  // Search functionality - Show ALL products
+  // Search functionality
   useEffect(() => {
     const performSearch = async () => {
       if (searchQuery.trim().length < 2) {
@@ -109,8 +122,7 @@ export default function Header() {
 
       setIsSearching(true);
       try {
-        // Get ALL products (removed the limit of 5)
-        const response = await quickSearchProducts(searchQuery);
+        const response = await quickSearchProducts(searchQuery, 5);
         if (response.success) {
           setSearchResults(response.data);
         }
@@ -166,24 +178,61 @@ export default function Header() {
     }
   };
 
-  // Close search when clicking outside
+  // Get first 3 categories to show in header
+  const getFirstThreeCategories = () => {
+    return categories.slice(0, 3);
+  };
+
+  // Get remaining categories for shop dropdown (after first 3)
+  const getRemainingCategories = () => {
+    return categories.slice(3);
+  };
+
+  const firstThreeCategories = getFirstThreeCategories();
+  const remainingCategories = getRemainingCategories();
+
+  // Close dropdowns when clicking outside or pressing Escape
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
+      // Close search dropdown
       if (searchContainerRef.current && !searchContainerRef.current.contains(event.target as Node)) {
         setShowSearch(false);
         setSearchQuery('');
         setSearchResults([]);
       }
+      
+      // Close shop dropdown
+      if (shopDropdownRef.current && !shopDropdownRef.current.contains(event.target as Node)) {
+        setShowShopDropdown(false);
+      }
+      
+      // Close mobile menu
       if (mobileMenuRef.current && !mobileMenuRef.current.contains(event.target as Node) && isMobileMenuOpen) {
         setIsMobileMenuOpen(false);
       }
     };
 
+    const handleEscapeKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        if (showSearch) {
+          setShowSearch(false);
+          setSearchQuery('');
+          setSearchResults([]);
+        }
+        if (showShopDropdown) {
+          setShowShopDropdown(false);
+        }
+      }
+    };
+
     document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('keydown', handleEscapeKey);
+    
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleEscapeKey);
     };
-  }, [showSearch, isMobileMenuOpen]);
+  }, [showSearch, showShopDropdown, isMobileMenuOpen]);
 
   // Calculate cart items count safely
   const getCartItemCount = () => {
@@ -196,7 +245,7 @@ export default function Header() {
   return (
     <>
       {/* Main Header */}
-      <header className="bg-gradient-to-r from-blue-500 to-purple-600 shadow-md border-b border-blue-400 font-sans relative">
+      <header className="bg-gradient-to-r from-blue-500 to-purple-600 shadow-md border-b border-blue-400 font-sans">
         <div className="container mx-auto px-3 sm:px-4 lg:px-6">
           <div className="flex items-center justify-between h-16 sm:h-20">
             {/* Logo and Mobile Menu Button */}
@@ -204,34 +253,33 @@ export default function Header() {
               <button
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                 className="xl:hidden p-1.5 text-white/90 hover:text-white transition-all duration-200 hover:bg-white/10 rounded-lg cursor-pointer"
+                aria-label="Toggle mobile menu"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
                 </svg>
               </button>
 
-              {/* Desktop Logo */}
+              {/* Logo */}
               <Link href="/" className="flex items-center space-x-2 sm:space-x-3 group cursor-pointer">
-                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform duration-200 border border-white/30 overflow-hidden">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform duration-200 border border-white/30 overflow-hidden">
                   <Image
                     src="/favicon.png"
                     alt="EcoStore Logo"
                     width={48}
                     height={48}
-                    
                     priority
                   />
                 </div>
                 <div className="flex flex-col">
-                  <span className="text-xl sm:text-2xl font-bold text-white tracking-tight">EcoStore</span>
-                  <span className="text-[10px] sm:text-xs text-white/80 tracking-wider font-medium">SUSTAINABLE LIVING</span>
+                  <span className="text-lg sm:text-xl md:text-2xl font-bold text-white tracking-tight">EcoStore</span>
+                  <span className="text-[9px] sm:text-[10px] md:text-xs text-white/80 tracking-wider font-medium">SUSTAINABLE LIVING</span>
                 </div>
               </Link>
             </div>
 
-            {/* Desktop Navigation - EXACT ORDER: Home → Categories (in added order) → All Products → About → Contact */}
+            {/* Desktop Navigation */}
             <nav className="hidden xl:flex items-center space-x-4 2xl:space-x-6">
-              {/* 1. Home - Always First */}
               <Link 
                 href="/" 
                 className="text-white/90 hover:text-white transition-all duration-200 font-medium px-3 py-2 rounded-lg hover:bg-white/10 border-b-2 border-transparent hover:border-white/50 text-sm 2xl:text-base cursor-pointer"
@@ -239,8 +287,8 @@ export default function Header() {
                 Home
               </Link>
               
-              {/* 2. Categories from Database - In exact order they were added */}
-              {!loading && categories.map((category) => (
+              {/* First 3 Categories */}
+              {!loading && firstThreeCategories.map((category) => (
                 <Link 
                   key={category._id}
                   href={`/products?category=${category.slug}`}
@@ -250,15 +298,67 @@ export default function Header() {
                 </Link>
               ))}
               
-              {/* 3. All Products - After Categories */}
-              <Link 
-                href="/products" 
-                className="text-white/90 hover:text-white transition-all duration-200 font-medium px-3 py-2 rounded-lg hover:bg-white/10 border-b-2 border-transparent hover:border-white/50 text-sm 2xl:text-base cursor-pointer"
-              >
-                All Products
-              </Link>
+              {/* Shop Dropdown - ALWAYS SHOW */}
+              <div ref={shopDropdownRef} className="relative">
+                <button
+                  onClick={() => setShowShopDropdown(!showShopDropdown)}
+                  className="flex items-center space-x-1 text-white/90 hover:text-white transition-all duration-200 font-medium px-3 py-2 rounded-lg hover:bg-white/10 border-b-2 border-transparent hover:border-white/50 text-sm 2xl:text-base cursor-pointer"
+                >
+                  <span>Shop</span>
+                  <svg
+                    className={`w-3 h-3 md:w-4 md:h-4 transition-transform duration-200 ${showShopDropdown ? 'rotate-180' : ''}`}
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+
+                {/* Shop Dropdown Menu */}
+                {showShopDropdown && (
+                  <div className="absolute top-full left-0 mt-1 w-48 bg-white rounded-lg shadow-xl py-2 z-50 border border-gray-200">
+                    <div className="px-3 py-2 border-b border-gray-100">
+                      <p className="text-gray-900 font-bold text-sm">Shop Categories</p>
+                    </div>
+                    
+                    {/* Show "All Categories" if no remaining categories */}
+                    {remainingCategories.length === 0 ? (
+                      <div className="px-3 py-2">
+                        <p className="text-sm text-gray-500">All categories shown above</p>
+                      </div>
+                    ) : (
+                      /* Remaining Categories (4th, 5th, etc.) */
+                      remainingCategories.map((category) => (
+                        <Link
+                          key={category._id}
+                          href={`/products?category=${category.slug}`}
+                          className="flex items-center space-x-2 px-3 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-all duration-200 cursor-pointer"
+                          onClick={() => setShowShopDropdown(false)}
+                        >
+                          <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                          </svg>
+                          <span>{category.name}</span>
+                        </Link>
+                      ))
+                    )}
+                    
+                    {/* View All Products Link */}
+                    <Link
+                      href="/products"
+                      className="flex items-center space-x-2 px-3 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-all duration-200 cursor-pointer border-t border-gray-100 mt-1"
+                      onClick={() => setShowShopDropdown(false)}
+                    >
+                      <svg className="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      </svg>
+                      <span className="font-medium">View All Products</span>
+                    </Link>
+                  </div>
+                )}
+              </div>
               
-              {/* 4. About */}
               <Link 
                 href="/about" 
                 className="text-white/90 hover:text-white transition-all duration-200 font-medium px-3 py-2 rounded-lg hover:bg-white/10 border-b-2 border-transparent hover:border-white/50 text-sm 2xl:text-base cursor-pointer"
@@ -266,7 +366,6 @@ export default function Header() {
                 About
               </Link>
               
-              {/* 5. Contact - Last */}
               <Link 
                 href="/contact" 
                 className="text-white/90 hover:text-white transition-all duration-200 font-medium px-3 py-2 rounded-lg hover:bg-white/10 border-b-2 border-transparent hover:border-white/50 text-sm 2xl:text-base cursor-pointer"
@@ -276,106 +375,143 @@ export default function Header() {
             </nav>
 
             {/* Actions */}
-            <div className="flex items-center space-x-1 sm:space-x-2 md:space-x-3">
-              {/* Desktop Search - Hidden on Mobile */}
-              <div className="hidden md:block" ref={searchContainerRef}>
+            <div className="flex items-center space-x-1 sm:space-x-2 md:space-x-3 justify-center">
+              {/* Search Component - IMPROVED */}
+              <div ref={searchContainerRef} className="relative flex items-center">
                 {showSearch ? (
-                  <div className="relative">
-                    <form onSubmit={handleSearchSubmit} className="flex items-center">
-                      <input
-                        ref={searchInputRef}
-                        type="text"
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        placeholder="Search products..."
-                        className="bg-white text-gray-900 px-3 py-2 rounded-lg border-2 border-white/30 focus:outline-none focus:border-white focus:ring-2 focus:ring-white/20 w-32 sm:w-40 md:w-44 lg:w-52 xl:w-56 2xl:w-64 transition-all duration-200 text-sm placeholder-gray-500"
-                        autoFocus
-                      />
-                      {/* Single button that shows search icon when there's text, otherwise close icon */}
-                      <button
-                        type={searchQuery.trim() ? "submit" : "button"}
+                  <div className="fixed inset-0 xl:relative xl:inset-auto z-50 flex items-center justify-center xl:block">
+                    {/* Backdrop overlay for mobile */}
+                    {isMobile && (
+                      <div 
                         onClick={() => {
-                          if (!searchQuery.trim()) {
-                            setShowSearch(false);
-                            setSearchQuery('');
-                            setSearchResults([]);
-                          }
+                          setShowSearch(false);
+                          setSearchQuery('');
+                          setSearchResults([]);
                         }}
-                        className="ml-1 p-1.5 text-white/80 hover:text-white transition-all duration-200 hover:bg-white/10 rounded-lg cursor-pointer"
-                      >
-                        {searchQuery.trim() ? (
-                          // Search icon when there's text
-                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                          </svg>
-                        ) : (
-                          // Close icon when no text
-                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                          </svg>
-                        )}
-                      </button>
-                    </form>
-
-                    {/* Search Results Dropdown */}
-                    {(searchResults.length > 0 || isSearching) && (
-                      <div className="absolute top-full left-0 right-0 mt-2 bg-white border-2 border-gray-200 rounded-lg shadow-xl z-50 max-h-96 overflow-y-auto w-full md:w-80 lg:w-96">
-                        {isSearching ? (
-                          <div className="p-3 text-center text-gray-500">
-                            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-500 mx-auto"></div>
-                            <p className="mt-1 text-xs">Searching...</p>
-                          </div>
-                        ) : (
-                          <>
-                            {searchResults.map((product) => (
-                              <div
-                                key={product._id}
-                                className="p-2 border-b border-gray-100 hover:bg-blue-50 cursor-pointer transition-all duration-200 hover:border-blue-200"
-                                onClick={() => handleProductClick(product)}
+                      />
+                    )}
+                    
+                    {/* Search Container - Improved positioning */}
+                    <div className="absolute top-20 xl:top-0 xl:relative w-full max-w-[90vw] sm:max-w-[400px] md:max-w-[500px] lg:max-w-[600px] xl:w-80 2xl:w-96 mx-auto xl:mx-0">
+                      <div className="bg-white rounded-lg shadow-xl border border-gray-200 p-2 xl:p-1.5">
+                        <form onSubmit={handleSearchSubmit} className="flex items-center gap-1.5">
+                          <div className="flex-1 flex items-center bg-gray-50 rounded-md px-3 py-1.5">
+                            <svg className="w-4 h-4 text-gray-400 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            </svg>
+                            <input
+                              ref={searchInputRef}
+                              type="text"
+                              value={searchQuery}
+                              onChange={(e) => setSearchQuery(e.target.value)}
+                              placeholder="Search products, categories..."
+                              className="flex-1 bg-transparent text-gray-900 focus:outline-none text-sm md:text-base placeholder-gray-500 w-full min-w-0"
+                              autoFocus
+                            />
+                            {searchQuery && (
+                              <button
+                                type="button"
+                                onClick={() => setSearchQuery('')}
+                                className="ml-1 p-0.5 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-200"
+                                aria-label="Clear search"
                               >
-                                <div className="flex items-center space-x-2">
-                                  <div className="w-10 h-10 bg-gray-100 rounded-lg flex-shrink-0 overflow-hidden border border-gray-200">
-                                    {product.image ? (
-                                      <img
-                                       src={`${process.env.NEXT_PUBLIC_BASE_URL}${product.image}`}
-                                        className="w-full h-full object-cover"
-                                      />
-                                    ) : (
-                                      <div className="w-full h-full bg-gray-200 flex items-center justify-center">
-                                        <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                        </svg>
-                                      </div>
-                                    )}
-                                  </div>
-                                  <div className="flex-1 min-w-0">
-                                    <p className="text-gray-900 font-medium truncate text-sm">{product.name}</p>
-                                    <p className="text-gray-500 text-xs truncate">{product.category}</p>
-                                    <p className="text-blue-600 font-medium text-sm">
-                                      ₹{product.price}
-                                      {product.featured && (
-                                        <span className="ml-1 text-xs bg-yellow-500 text-white px-1 py-0.5 rounded">Featured</span>
-                                      )}
-                                    </p>
-                                  </div>
-                                </div>
-                              </div>
-                            ))}
-                            <div
-                              className="p-2 bg-gray-50 hover:bg-blue-500 hover:text-white cursor-pointer text-center transition-all duration-200 rounded-b-lg"
-                              onClick={handleViewAllResults}
+                                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                              </button>
+                            )}
+                          </div>
+                        
+                          <button
+                            type="submit"
+                            className="p-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md transition-all duration-200 flex items-center justify-center"
+                            aria-label="Search"
+                          >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            </svg>
+                          </button>
+                          {isMobile && (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setShowSearch(false);
+                                setSearchQuery('');
+                                setSearchResults([]);
+                              }}
+                              className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-md transition-all duration-200"
+                              aria-label="Close search"
                             >
-                              <p className="font-medium text-sm">View all {searchResults.length} results for "{searchQuery}"</p>
-                            </div>
-                          </>
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                              </svg>
+                            </button>
+                          )}
+                        </form>
+
+                        {/* Search Results Dropdown */}
+                        {(searchResults.length > 0 || isSearching) && (
+                          <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-xl z-50 max-h-80 overflow-y-auto">
+                            {isSearching ? (
+                              <div className="p-4 text-center text-gray-500">
+                                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500 mx-auto"></div>
+                                <p className="mt-2 text-sm">Searching...</p>
+                              </div>
+                            ) : (
+                              <>
+                                <div className="p-2">
+                                  <p className="text-xs text-gray-500 font-medium px-2 py-1">Search Results</p>
+                                  {searchResults.map((product) => (
+                                    <div
+                                      key={product._id}
+                                      className="flex items-center p-2 hover:bg-blue-50 rounded cursor-pointer transition-colors"
+                                      onClick={() => handleProductClick(product)}
+                                    >
+                                      <div className="w-10 h-10 bg-gray-100 rounded flex-shrink-0 overflow-hidden border">
+                                        {product.image ? (
+                                          <img
+                                            src={`${process.env.NEXT_PUBLIC_BASE_URL}${product.image}`}
+                                            className="w-full h-full object-cover"
+                                            alt={product.name}
+                                          />
+                                        ) : (
+                                          <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+                                            <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                            </svg>
+                                          </div>
+                                        )}
+                                      </div>
+                                      <div className="ml-3 flex-1 min-w-0">
+                                        <p className="text-sm font-medium text-gray-900 truncate">{product.name}</p>
+                                        <div className="flex items-center justify-between">
+                                          <p className="text-xs text-gray-500">{product.category}</p>
+                                          <p className="text-blue-600 font-medium text-sm">₹{product.price}</p>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
+                                <div
+                                  className="border-t border-gray-100 p-3 bg-gray-50 hover:bg-blue-50 cursor-pointer text-center"
+                                  onClick={handleViewAllResults}
+                                >
+                                  <p className="text-sm font-medium text-blue-600 hover:text-blue-700">
+                                    View all results for "{searchQuery}"
+                                  </p>
+                                </div>
+                              </>
+                            )}
+                          </div>
                         )}
                       </div>
-                    )}
+                    </div>
                   </div>
                 ) : (
                   <button 
                     onClick={handleSearchClick}
                     className="p-1.5 text-white/90 hover:text-white hover:bg-white/10 transition-all duration-200 rounded-lg cursor-pointer"
+                    aria-label="Open search"
                   >
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -384,17 +520,7 @@ export default function Header() {
                 )}
               </div>
               
-              {/* Mobile Search Button */}
-              <button 
-                onClick={handleSearchClick}
-                className="md:hidden p-1.5 text-white/90 hover:text-white hover:bg-white/10 transition-all duration-200 rounded-lg cursor-pointer"
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
-              </button>
-              
-              {/* Cart Button */}
+              {/* Cart Button - Always visible */}
               <Link 
                 href="/cart"
                 className="p-1.5 text-white/90 hover:text-white hover:bg-white/10 transition-all duration-200 rounded-lg relative group cursor-pointer"
@@ -417,14 +543,14 @@ export default function Header() {
                       onClick={() => setShowDropdown(!showDropdown)}
                       className="flex items-center space-x-1 sm:space-x-2 text-white/90 hover:text-white transition-all duration-200 hover:bg-white/10 rounded-lg p-1.5 cursor-pointer"
                     >
-                      <div className="w-7 h-7 sm:w-8 sm:h-8 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center text-white font-bold text-xs sm:text-sm shadow border border-white/30">
+                      <div className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 bg-white/20 rounded-full flex items-center justify-center text-white font-bold text-xs md:text-sm shadow border border-white/30">
                         {user.email?.charAt(0).toUpperCase()}
                       </div>
-                      <span className="hidden 2xl:block text-white/90 font-medium text-sm">
-                        {user.name || user.email}
+                      <span className="hidden lg:block text-white/90 font-medium text-sm">
+                        {user.name || user.email?.split('@')[0]}
                       </span>
                       <svg
-                        className={`hidden 2xl:block w-3 h-3 sm:w-4 sm:h-4 transition-transform duration-200 ${showDropdown ? 'rotate-180' : ''}`}
+                        className={`hidden lg:block w-3 h-3 md:w-4 md:h-4 transition-transform duration-200 ${showDropdown ? 'rotate-180' : ''}`}
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"
@@ -463,16 +589,12 @@ export default function Header() {
                     )}
                   </div>
                 ) : (
+                  // Login/Signup buttons - Always visible on mobile
                   <div className="flex items-center space-x-1 sm:space-x-2">
-                    <Link
-                      href="/login"
-                      className="text-white/90 hover:text-white transition-all duration-200 font-medium px-2 py-1.5 rounded-md hover:bg-white/10 border border-transparent hover:border-white/30 text-xs sm:text-sm whitespace-nowrap cursor-pointer min-w-[45px] sm:min-w-[50px] text-center"
-                    >
-                      Login
-                    </Link>
+                  
                     <Link
                       href="/signup"
-                      className="bg-white text-blue-600 px-2 py-1.5 rounded-md hover:bg-gray-100 transition-all duration-200 font-medium shadow hover:shadow-white/25 text-xs sm:text-sm whitespace-nowrap cursor-pointer min-w-[50px] sm:min-w-[55px] text-center"
+                      className="bg-white text-blue-600 px-2 py-1.5 rounded-md hover:bg-gray-100 transition-all duration-200 font-medium shadow hover:shadow-white/25 text-xs sm:text-sm whitespace-nowrap cursor-pointer min-w-[45px] sm:min-w-[50px] text-center"
                     >
                       Sign Up
                     </Link>
@@ -481,319 +603,220 @@ export default function Header() {
               </div>
             </div>
           </div>
-        </div>
 
-        {/* MOBILE SEARCH SECTION - SLIDES DOWN BELOW HEADER */}
-        <div className={`
-          md:hidden absolute left-0 right-0 top-full z-40 overflow-hidden
-          transition-all duration-300 ease-in-out
-          ${showSearch ? 'max-h-[500px] opacity-100 translate-y-0' : 'max-h-0 opacity-0 -translate-y-4'}
-        `}>
-          <div className="bg-gradient-to-r from-blue-500 to-purple-600 border-t border-blue-400 shadow-lg">
-            <div className="container mx-auto px-4 py-3">
-              <div className="relative" ref={searchContainerRef}>
-                <form onSubmit={handleSearchSubmit} className="flex items-center">
-                  <input
-                    ref={searchInputRef}
-                    type="text"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Search products..."
-                    className="bg-white text-gray-900 px-4 py-3 rounded-lg border-2 border-white/30 focus:outline-none focus:border-white focus:ring-2 focus:ring-white/20 w-full transition-all duration-200 text-base placeholder-gray-500"
-                    autoFocus={showSearch}
-                  />
-                  <button
-                    type={searchQuery.trim() ? "submit" : "button"}
-                    onClick={() => {
-                      if (!searchQuery.trim()) {
-                        setShowSearch(false);
-                        setSearchQuery('');
-                        setSearchResults([]);
-                      }
-                    }}
-                    className="ml-2 p-2 text-white hover:bg-white/10 transition-all duration-200 rounded-lg cursor-pointer"
-                  >
-                    {searchQuery.trim() ? (
-                      // Search icon when there's text
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                      </svg>
-                    ) : (
-                      // Close icon when no text
+          {/* Mobile Menu */}
+          {isMobileMenuOpen && (
+            <div ref={mobileMenuRef} className="xl:hidden fixed inset-0 z-50">
+              <div 
+                className="absolute inset-0 bg-black/30"
+                onClick={() => setIsMobileMenuOpen(false)}
+              />
+              
+              <div className="absolute top-0 left-0 h-full w-64 bg-gradient-to-br from-blue-500 to-purple-600 border-r border-blue-400 shadow-2xl">
+                <div className="flex flex-col h-full">
+                  {/* Mobile Menu Header */}
+                  <div className="flex items-center justify-between p-4 border-b border-blue-400">
+                    <Link 
+                      href="/" 
+                      className="flex items-center space-x-2 group cursor-pointer"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      <div className="w-8 h-8 bg-white/20 rounded-xl flex items-center justify-center shadow-lg border border-white/30 overflow-hidden">
+                        <Image
+                          src="/favicon.png"
+                          alt="EcoStore Logo"
+                          width={32}
+                          height={32}
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <span className="text-lg font-bold text-white">EcoStore</span>
+                        <span className="text-[10px] text-white/80">SUSTAINABLE LIVING</span>
+                      </div>
+                    </Link>
+                    <button
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className="p-1.5 text-white/80 hover:text-white hover:bg-white/10 transition-all duration-200 rounded-lg cursor-pointer"
+                    >
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                       </svg>
-                    )}
-                  </button>
-                </form>
-              </div>
-            </div>
-          </div>
-          
-          {/* SEARCH RESULTS - BELOW THE SEARCH BAR WITH SCROLL */}
-          {(searchResults.length > 0 || isSearching) && (
-            <div className="bg-white border-t border-gray-200 shadow-lg">
-              <div className="container mx-auto px-4">
-                {isSearching ? (
-                  <div className="py-4 text-center text-gray-500">
-                    <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500 mx-auto"></div>
-                    <p className="mt-2 text-sm">Searching for products...</p>
+                    </button>
                   </div>
-                ) : (
-                  <div className="max-h-64 overflow-y-auto py-2"> {/* Fixed height with scroll */}
-                    <div className="space-y-2">
-                      {searchResults.map((product) => (
-                        <div
-                          key={product._id}
-                          className="p-3 border border-gray-200 rounded-lg hover:bg-blue-50 cursor-pointer transition-all duration-200 hover:border-blue-300 hover:shadow-sm"
-                          onClick={() => handleProductClick(product)}
+
+                  {/* Mobile Navigation Links */}
+                  <nav className="flex-1 p-4 overflow-y-auto">
+                    <div className="space-y-1">
+                      <Link 
+                        href="/" 
+                        className="flex items-center space-x-3 text-white/90 hover:text-white hover:bg-white/10 transition-all duration-200 font-medium p-3 rounded-lg border border-transparent hover:border-white/30 text-sm cursor-pointer"
+                        onClick={() => setIsMobileMenuOpen(false)}
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                        </svg>
+                        <span>Home</span>
+                      </Link>
+                      
+                      {/* All Categories in Mobile Menu (no separation needed) */}
+                      {!loading && categories.map((category) => (
+                        <Link
+                          key={category._id}
+                          href={`/products?category=${category.slug}`}
+                          className="flex items-center space-x-3 text-white/90 hover:text-white hover:bg-white/10 transition-all duration-200 font-medium p-3 rounded-lg border border-transparent hover:border-white/30 text-sm cursor-pointer ml-3"
+                          onClick={() => setIsMobileMenuOpen(false)}
                         >
-                          <div className="flex items-center space-x-3">
-                            <div className="w-14 h-14 bg-gray-100 rounded-lg flex-shrink-0 overflow-hidden border border-gray-200">
-                              {product.image ? (
-                                <img
-                                  src={`${process.env.NEXT_PUBLIC_BASE_URL}${product.image}`}
-                                  className="w-full h-full object-cover"
-                                  alt={product.name}
-                                />
-                              ) : (
-                                <div className="w-full h-full bg-gray-200 flex items-center justify-center">
-                                  <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                  </svg>
-                                </div>
-                              )}
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <p className="text-gray-900 font-medium truncate text-sm">{product.name}</p>
-                              <p className="text-gray-500 text-xs truncate">{product.category}</p>
-                              <div className="flex items-center justify-between mt-1">
-                                <p className="text-blue-600 font-medium text-sm">₹{product.price}</p>
-                                {product.featured && (
-                                  <span className="text-xs bg-yellow-500 text-white px-2 py-0.5 rounded">Featured</span>
-                                )}
-                              </div>
-                            </div>
-                          </div>
-                        </div>
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                          </svg>
+                          <span>{category.name}</span>
+                        </Link>
                       ))}
+                      
+                      <Link 
+                        href="/about" 
+                        className="flex items-center space-x-3 text-white/90 hover:text-white hover:bg-white/10 transition-all duration-200 font-medium p-3 rounded-lg border border-transparent hover:border-white/30 text-sm cursor-pointer"
+                        onClick={() => setIsMobileMenuOpen(false)}
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <span>About</span>
+                      </Link>
+                      
+                      <Link 
+                        href="/contact" 
+                        className="flex items-center space-x-3 text-white/90 hover:text-white hover:bg-white/10 transition-all duration-200 font-medium p-3 rounded-lg border border-transparent hover:border-white/30 text-sm cursor-pointer"
+                        onClick={() => setIsMobileMenuOpen(false)}
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                        </svg>
+                        <span>Contact</span>
+                      </Link>
                     </div>
-                    
-                    {/* "View all results" button - Always visible at bottom */}
-                    <div
-                      className="p-3 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 cursor-pointer text-center transition-all duration-200 mt-2"
-                      onClick={handleViewAllResults}
-                    >
-                      <p className="text-blue-600 font-medium text-sm">
-                        View all {searchResults.length} results for "<span className="font-bold">{searchQuery}</span>"
-                      </p>
-                    </div>
+                  </nav>
+
+                  {/* Mobile Footer Actions */}
+                  <div className="p-4 border-t border-blue-400">
+                    {user ? (
+                      <div className="flex items-center space-x-3 p-2">
+                        <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center text-white font-bold text-sm">
+                          {user.email?.charAt(0).toUpperCase()}
+                        </div>
+                        <div className="flex-1">
+                          <p className="text-white font-medium text-sm truncate">{user.name || user.email}</p>
+                          <p className="text-white/70 text-xs">View Profile</p>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="flex space-x-2">
+                        <Link
+                          href="/login"
+                          className="flex-1 text-center bg-white/20 text-white py-2 rounded-lg hover:bg-white/30 transition-all duration-200 text-sm font-medium"
+                          onClick={() => setIsMobileMenuOpen(false)}
+                        >
+                          Login
+                        </Link>
+                        <Link
+                          href="/signup"
+                          className="flex-1 text-center bg-white text-blue-600 py-2 rounded-lg hover:bg-gray-100 transition-all duration-200 text-sm font-medium"
+                          onClick={() => setIsMobileMenuOpen(false)}
+                        >
+                          Sign Up
+                        </Link>
+                      </div>
+                    )}
                   </div>
-                )}
+                </div>
               </div>
             </div>
           )}
         </div>
-
-        {/* Mobile Menu - EXACT SAME ORDER: Home → Categories (in added order) → All Products → About → Contact */}
-        {isMobileMenuOpen && (
-          <div ref={mobileMenuRef} className="xl:hidden fixed inset-0 z-50">
-            {/* Transparent overlay */}
-            <div 
-              className="absolute inset-0 bg-transparent"
-              onClick={() => setIsMobileMenuOpen(false)}
-            />
-            
-            {/* Smaller sidebar */}
-            <div className="absolute top-0 left-0 h-full w-64 bg-gradient-to-br from-blue-500 to-purple-600 border-r border-blue-400 shadow-2xl">
-              <div className="flex flex-col h-full">
-                {/* Mobile Menu Header */}
-                <div className="flex items-center justify-between p-4 border-b border-blue-400 bg-gradient-to-r from-blue-500 to-purple-600">
-                  <Link 
-                    href="/" 
-                    className="flex items-center space-x-2 group cursor-pointer"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                  >
-                    {/* Mobile Logo */}
-                    <div className="w-8 h-8 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center shadow-lg border border-white/30 overflow-hidden">
-                      <Image
-                        src="/favicon.png"
-                        alt="EcoStore Logo"
-                        width={32}
-                        height={32}
-                        className="w-full h-full object-contain p-0.5"
-                      />
-                    </div>
-                    <div className="flex flex-col">
-                      <span className="text-lg font-bold text-white">EcoStore</span>
-                      <span className="text-[10px] text-white/80">SUSTAINABLE LIVING</span>
-                    </div>
-                  </Link>
-                  <button
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className="p-1.5 text-white/80 hover:text-white hover:bg-white/10 transition-all duration-200 rounded-lg cursor-pointer"
-                  >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                  </button>
-                </div>
-
-                {/* Mobile Navigation Links - EXACT SAME ORDER */}
-                <nav className="flex-1 p-4">
-                  <div className="space-y-1">
-                    {/* 1. Home - Always First */}
-                    <Link 
-                      href="/" 
-                      className="flex items-center space-x-3 text-white/90 hover:text-white hover:bg-white/10 transition-all duration-200 font-medium p-3 rounded-lg border border-transparent hover:border-white/30 text-sm cursor-pointer"
-                      onClick={() => setIsMobileMenuOpen(false)}
-                    >
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-                      </svg>
-                      <span>Home</span>
-                    </Link>
-                    
-                    {/* 2. Categories from Database - In exact order they were added */}
-                    {!loading && categories.map((category) => (
-                      <Link
-                        key={category._id}
-                        href={`/products?category=${category._id}`}
-                        className="flex items-center space-x-3 text-white/90 hover:text-white hover:bg-white/10 transition-all duration-200 font-medium p-3 rounded-lg border border-transparent hover:border-white/30 text-sm cursor-pointer ml-3"
-                        onClick={() => setIsMobileMenuOpen(false)}
-                      >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-                        </svg>
-                        <span>{category.name}</span>
-                      </Link>
-                    ))}
-                    
-                    {/* 3. All Products - After Categories */}
-                    <Link 
-                      href="/products" 
-                      className="flex items-center space-x-3 text-white/90 hover:text-white hover:bg-white/10 transition-all duration-200 font-medium p-3 rounded-lg border border-transparent hover:border-white/30 text-sm cursor-pointer"
-                      onClick={() => setIsMobileMenuOpen(false)}
-                    >
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-                      </svg>
-                      <span>All Products</span>
-                    </Link>
-                    
-                    {/* 4. About */}
-                    <Link 
-                      href="/about" 
-                      className="flex items-center space-x-3 text-white/90 hover:text-white hover:bg-white/10 transition-all duration-200 font-medium p-3 rounded-lg border border-transparent hover:border-white/30 text-sm cursor-pointer"
-                      onClick={() => setIsMobileMenuOpen(false)}
-                    >
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                      </svg>
-                      <span>About</span>
-                    </Link>
-                    
-                    {/* 5. Contact - Last */}
-                    <Link 
-                      href="/contact" 
-                      className="flex items-center space-x-3 text-white/90 hover:text-white hover:bg-white/10 transition-all duration-200 font-medium p-3 rounded-lg border border-transparent hover:border-white/30 text-sm cursor-pointer"
-                      onClick={() => setIsMobileMenuOpen(false)}
-                    >
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                      </svg>
-                      <span>Contact</span>
-                    </Link>
-                  </div>
-                </nav>
-              </div>
-            </div>
-          </div>
-        )}
       </header>
 
-      {/* Bottom Navigation Footer */}
+      {/* Bottom Navigation Footer - IMPROVED */}
       <div className={`
         fixed bottom-0 left-0 right-0 bg-gradient-to-r from-blue-500 to-purple-600 border-t border-blue-400 shadow-2xl z-40
         transition-transform duration-300 ease-in-out
         ${isFooterVisible ? 'translate-y-0' : 'translate-y-full'}
         xl:hidden
       `}>
-        <div className="container mx-auto px-4">
-          <div className="flex items-center justify-between h-16">
+        <div className="container mx-auto px-2">
+          <div className="flex items-center justify-between h-14">
             {/* Home */}
             <Link 
               href="/" 
-              className="flex flex-col items-center justify-center flex-1 p-2 text-white/90 hover:text-white transition-all duration-200 cursor-pointer"
+              className="flex flex-col items-center justify-center flex-1 p-1 text-white/90 hover:text-white transition-all duration-200 cursor-pointer min-w-0"
+              onClick={() => setIsFooterVisible(false)}
             >
-              <svg className="w-5 h-5 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-4 h-4 mb-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
               </svg>
-              <span className="text-xs font-medium">Home</span>
+              <span className="text-[10px] font-medium truncate w-full text-center">Home</span>
             </Link>
 
             {/* Search */}
             <button 
               onClick={handleSearchClick}
-              className="flex flex-col items-center justify-center flex-1 p-2 text-white/90 hover:text-white transition-all duration-200 cursor-pointer"
+              className="flex flex-col items-center justify-center flex-1 p-1 text-white/90 hover:text-white transition-all duration-200 cursor-pointer min-w-0"
             >
-              <svg className="w-5 h-5 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-4 h-4 mb-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
-              <span className="text-xs font-medium">Search</span>
+              <span className="text-[10px] font-medium truncate w-full text-center">Search</span>
             </button>
 
             {/* Products */}
             <Link 
               href="/products" 
-              className="flex flex-col items-center justify-center flex-1 p-2 text-white/90 hover:text-white transition-all duration-200 cursor-pointer"
+              className="flex flex-col items-center justify-center flex-1 p-1 text-white/90 hover:text-white transition-all duration-200 cursor-pointer min-w-0"
+              onClick={() => setIsFooterVisible(false)}
             >
-              <svg className="w-5 h-5 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-4 h-4 mb-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
               </svg>
-              <span className="text-xs font-medium">Products</span>
+              <span className="text-[10px] font-medium truncate w-full text-center">Products</span>
             </Link>
 
             {/* Cart */}
             <Link 
               href="/cart"
-              className="flex flex-col items-center justify-center flex-1 p-2 text-white/90 hover:text-white transition-all duration-200 relative cursor-pointer"
+              className="flex flex-col items-center justify-center flex-1 p-1 text-white/90 hover:text-white transition-all duration-200 relative cursor-pointer min-w-0"
+              onClick={() => setIsFooterVisible(false)}
             >
-              <svg className="w-5 h-5 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-4 h-4 mb-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
               </svg>
               {cartItemsCount > 0 && (
-                <span className="absolute top-1 right-6 bg-white text-blue-600 text-xs rounded-full h-4 w-4 flex items-center justify-center font-bold shadow border border-blue-400">
+                <span className="absolute top-0 right-4 bg-white text-blue-600 text-[10px] rounded-full h-3 w-3 flex items-center justify-center font-bold shadow border border-blue-400">
                   {cartItemsCount > 9 ? '9+' : cartItemsCount}
                 </span>
               )}
-              <span className="text-xs font-medium">Cart</span>
+              <span className="text-[10px] font-medium truncate w-full text-center">Cart</span>
             </Link>
 
-            {/* Login & Signup */}
+            {/* Account */}
             {user ? (
               <Link 
                 href="/profile" 
-                className="flex flex-col items-center justify-center flex-1 p-2 text-white/90 hover:text-white transition-all duration-200 cursor-pointer"
+                className="flex flex-col items-center justify-center flex-1 p-1 text-white/90 hover:text-white transition-all duration-200 cursor-pointer min-w-0"
+                onClick={() => setIsFooterVisible(false)}
               >
-                <div className="w-6 h-6 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center text-white font-bold text-xs mb-1 border border-white/30">
+                <div className="w-4 h-4 bg-white/20 rounded-full flex items-center justify-center text-white font-bold text-[10px] mb-0.5 border border-white/30">
                   {user.email?.charAt(0).toUpperCase()}
                 </div>
-                <span className="text-xs font-medium">Account</span>
+                <span className="text-[10px] font-medium truncate w-full text-center">Account</span>
               </Link>
             ) : (
-              <div className="flex flex-col items-center justify-center flex-1 p-2">
-                <div className="flex flex-col items-center space-y-1">
-                  <div className="flex space-x-2">
-                    <Link
-                      href="/login"
-                      className="px-2 py-1 bg-white/20 backdrop-blur-sm text-white text-xs font-medium rounded hover:bg-white/30 transition-all duration-200 min-w-[45px] text-center border border-white/30 cursor-pointer"
-                    >
-                      Login
-                    </Link>
+              <div className="flex flex-col items-center justify-center flex-1 p-1 min-w-0">
+                <div className="flex flex-col items-center">
+                  <div className="flex space-x-1">
+                
                     <Link
                       href="/signup"
-                      className="px-2 py-1 bg-white text-blue-600 text-xs font-medium rounded hover:bg-gray-100 transition-all duration-200 min-w-[45px] text-center cursor-pointer"
+                      className="px-1.5 py-1 bg-white text-blue-600 text-[10px] font-medium rounded hover:bg-gray-100 transition-all duration-200 text-center cursor-pointer"
+                      onClick={() => setIsFooterVisible(false)}
                     >
                       Signup
                     </Link>

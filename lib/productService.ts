@@ -234,5 +234,5 @@ export function getProductImageUrl(product: Product): string {
     return `${baseUrl}${product.ogImage}`;
   }
   
-  return `${process.env.NEXT_PUBLIC_IMG_URL}/placeholder-product.jpg`;
+  return `${process.env.NEXT_PUBLIC_IMG_URL}`;
 }

@@ -142,7 +142,7 @@ export default function SignupForm() {
             <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">
               {isGuestUser ? 'Complete Your Account' : 'Create Your Account'}
             </h2>
-            <p className="mt-2 text-gray-600 text-sm sm:text-base">
+            <p className="mt-2 text-gray-600 text-lg lg :text-base">
               {isGuestUser ? (
                 showPasswordFields 
                   ? 'Set your password to secure your account' 
