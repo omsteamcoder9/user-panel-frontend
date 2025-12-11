@@ -127,21 +127,21 @@ export default function ProductDetailPage(props: ProductDetailPageProps) {
                 </h1>
               </div>
 
-              {/* Price and Stock */}
-              <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
-                <span className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900">
-                  ₹{product.price || 0}
-                </span>
-                {product.stock > 0 ? (
-                  <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium self-start sm:self-auto">
-                    In Stock ({product.stock} available)
-                  </span>
-                ) : (
-                  <span className="px-3 py-1 bg-red-100 text-red-800 rounded-full text-sm font-medium self-start sm:self-auto">
-                    Out of Stock
-                  </span>
-                )}
-              </div>
+            {/* Price and Stock */}
+<div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
+  <span className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900">
+    ₹{product.price.toLocaleString('en-IN')}
+  </span>
+  {product.stock > 0 ? (
+    <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium self-start sm:self-auto">
+      In Stock ({product.stock} available)
+    </span>
+  ) : (
+    <span className="px-3 py-1 bg-red-100 text-red-800 rounded-full text-sm font-medium self-start sm:self-auto">
+      Out of Stock
+    </span>
+  )}
+</div>
 
               {/* Add to Cart Section - Made SMALLER */}
               <div className="pt-2 lg:pt-4">
